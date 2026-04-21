@@ -928,209 +928,323 @@
                     </div>
                 </div>
 
-                <!-- LISTA DE JOGOS (CARROSSEL HORIZONTAL) -->
-                <div class="carousel-wrapper">
-                    <button id="scrollLeftBtn" class="carousel-btn left"
-                        onclick="document.querySelector('.matches-container').scrollBy({left: -350, behavior: 'smooth'})"><i
-                            class="fas fa-chevron-left"></i></button>
+                <!-- LISTA DE JOGOS (VERTICAL) -->
+                <div class="fixture-list">
 
-                    <div class="matches-container">
-                        <!-- JOGO 1 - FIM DE JOGO -->
-                        <div class="match-card confirmed" data-location="fora" data-comp="lidtap">
-                            <div class="match-status confirmed-status">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Fim de Jogo</span>
+                    <!-- RODADA 1 — FIM DE JOGO -->
+                    <div class="fixture-item fixture-finished">
+                        <div class="fixture-round">1ª Rod.</div>
+                        <div class="fixture-body">
+                            <div class="fixture-team fixture-team-left">
+                                <img src="Imagens/Uberaba.jpg" alt="Funel Uberaba" class="fixture-logo">
+                                <span>Funel Uberaba</span>
                             </div>
-
-                            <div class="match-teams premium">
-                                <div class="team home-team">
-                                    <div class="team-info">
-                                        <img src="Imagens/Uberaba.jpg" alt="Funel Uberaba" class="team-logo-tiny">
-                                        <span class="team-name">Funel Uberaba</span>
-                                    </div>
-                                    <div class="score-placeholder">23</div>
-                                </div>
-                                <div class="vs">VS</div>
-                                <div class="team away-team adesp-team">
-                                    <div class="team-info">
-                                        <img src="Imagens/CDHU.jpg" alt="ADESP/CDHU" class="team-logo-tiny">
-                                        <span class="team-name">ADESP/CDHU</span>
-                                    </div>
-                                    <div class="score-placeholder">26</div>
-                                </div>
+                            <div class="fixture-score">
+                                <span class="score-num">23</span>
+                                <span class="score-sep">x</span>
+                                <span class="score-num score-win">26</span>
                             </div>
-
-                            <div class="match-meta">
-                                <div class="match-date">
-                                    <i class="fas fa-calendar-day"></i>
-                                    <span>29/03/2026 • 15:30</span>
-                                </div>
-                                <div class="match-location">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>Funel Uberaba - MG</span>
-                                </div>
-                                <div class="match-comp">
-                                    <i class="fas fa-trophy"></i>
-                                    <span>LIDTAP 2026</span>
-                                </div>
+                            <div class="fixture-team fixture-team-right">
+                                <img src="Imagens/CDHU.jpg" alt="ADESP/CDHU" class="fixture-logo">
+                                <span><strong>ADESP/CDHU</strong></span>
                             </div>
-
-                            <div class="match-actions">
-                                <button class="btn-primary" onclick="openMatchSummary('funel-uberaba')"
-                                    style="padding: 10px 20px; font-size: 0.9em; border-radius: 8px;">Ver
+                            <div class="fixture-info">
+                                <span><i class="fas fa-calendar-day"></i> 29/03 • 15:30</span>
+                                <span><i class="fas fa-map-marker-alt"></i> Uberaba-MG</span>
+                            </div>
+                            <div class="fixture-cta">
+                                <button class="fixture-btn fixture-btn-result"
+                                    onclick="openMatchSummary('funel-uberaba')"><i class="fas fa-poll"></i>
                                     Resumo</button>
                             </div>
                         </div>
+                        <div class="fixture-badge badge-win"><i class="fas fa-check"></i> V</div>
+                    </div>
 
-                        <!-- JOGO 2 - CONFIRMADO -->
-                        <div class="match-card confirmed" data-location="fora" data-comp="lidtap">
-                            <div class="match-status confirmed-status">
-                                <i class="fas fa-calendar-check"></i>
-                                <span>Fim de Jogo</span>
+                    <!-- RODADA 2 — FIM DE JOGO -->
+                    <div class="fixture-item fixture-finished">
+                        <div class="fixture-round">2ª Rod.</div>
+                        <div class="fixture-body">
+                            <div class="fixture-team fixture-team-left">
+                                <img src="Imagens/Paracatu.jpg" alt="Paracatu" class="fixture-logo">
+                                <span>Hdb. Paracatu</span>
                             </div>
-
-                            <div class="match-teams premium">
-                                <div class="team home-team">
-                                    <div class="team-info">
-                                        <img src="Imagens/Paracatu.jpg" alt="Paracatu" class="team-logo-tiny">
-                                        <span class="team-name">HANDEBOL PARACATU</span>
-                                    </div>
-                                    <div class="score-placeholder">21</div>
-                                </div>
-                                <div class="vs">VS</div>
-                                <div class="team away-team adesp-team">
-                                    <div class="team-info">
-                                        <img src="Imagens/CDHU.jpg" alt="ADESP/CDHU" class="team-logo-tiny">
-                                        <span class="team-name">ADESP/CDHU</span>
-                                    </div>
-                                    <div class="score-placeholder">28</div>
-                                </div>
+                            <div class="fixture-score">
+                                <span class="score-num">21</span>
+                                <span class="score-sep">x</span>
+                                <span class="score-num score-win">28</span>
                             </div>
-
-                            <div class="match-meta">
-                                <div class="match-date">
-                                    <i class="fas fa-calendar-day"></i>
-                                    <span>18/04/2026 • 18:20</span>
-                                </div>
-                                <div class="match-location">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>Funel Uberaba - MG</span>
-                                </div>
-                                <div class="match-comp">
-                                    <i class="fas fa-trophy"></i>
-                                    <span>LIDTAP 2026</span>
-                                </div>
+                            <div class="fixture-team fixture-team-right">
+                                <img src="Imagens/CDHU.jpg" alt="ADESP/CDHU" class="fixture-logo">
+                                <span><strong>ADESP/CDHU</strong></span>
                             </div>
-
-                            <div class="match-actions">
-                                <button class="btn-primary" onclick="openMatchSummary('funel-uberaba')"
-                                    style="padding: 10px 20px; font-size: 0.9em; border-radius: 8px;">Ver
-                                    Resumo</button>
+                            <div class="fixture-info">
+                                <span><i class="fas fa-calendar-day"></i> 18/04 • 18:20</span>
+                                <span><i class="fas fa-map-marker-alt"></i> Uberaba-MG</span>
+                            </div>
+                            <div class="fixture-cta">
+                                <button class="fixture-btn fixture-btn-result" onclick="openMatchSummary('paracatu')"><i
+                                        class="fas fa-poll"></i> Resumo</button>
                             </div>
                         </div>
+                        <div class="fixture-badge badge-win"><i class="fas fa-check"></i> V</div>
+                    </div>
 
-                        <!-- JOGO 3 - CONFIRMADO -->
-                        <div class="match-card confirmed" data-location="fora" data-comp="lidtap">
-                            <div class="match-status confirmed-status">
-                                <i class="fas fa-calendar-check"></i>
-                                <span>Confirmado</span>
+                    <!-- RODADA 3 — CONFIRMADO -->
+                    <div class="fixture-item fixture-upcoming">
+                        <div class="fixture-round">3ª Rod.</div>
+                        <div class="fixture-body">
+                            <div class="fixture-team fixture-team-left">
+                                <img src="Imagens/Medicina Uniube.png" alt="Medicina Uniube" class="fixture-logo">
+                                <span>Med. UNIUBE</span>
                             </div>
-
-                            <div class="match-teams premium">
-                                <div class="team home-team">
-                                    <div class="team-info">
-                                        <img src="Imagens/Medicina Uniube.png" alt="Medicina Uniube"
-                                            class="team-logo-tiny">
-                                        <span class="team-name">Medicina UNIUBE</span>
-                                    </div>
-                                    <div class="score-placeholder">-</div>
-                                </div>
-                                <div class="vs">VS</div>
-                                <div class="team away-team adesp-team">
-                                    <div class="team-info">
-                                        <img src="Imagens/CDHU.jpg" alt="ADESP/CDHU" class="team-logo-tiny">
-                                        <span class="team-name">ADESP/CDHU</span>
-                                    </div>
-                                    <div class="score-placeholder">-</div>
-                                </div>
+                            <div class="fixture-score">
+                                <span class="score-num score-pending">-</span>
+                                <span class="score-sep">x</span>
+                                <span class="score-num score-pending">-</span>
                             </div>
-
-                            <div class="match-meta">
-                                <div class="match-date">
-                                    <i class="fas fa-calendar-day"></i>
-                                    <span>10/05/2026 • 12:40</span>
-                                </div>
-                                <div class="match-location">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>Funel Uberaba - MG</span>
-                                </div>
-                                <div class="match-comp">
-                                    <i class="fas fa-trophy"></i>
-                                    <span>LIDTAP 2026</span>
-                                </div>
+                            <div class="fixture-team fixture-team-right">
+                                <img src="Imagens/CDHU.jpg" alt="ADESP/CDHU" class="fixture-logo">
+                                <span><strong>ADESP/CDHU</strong></span>
                             </div>
-
-                            <div class="match-actions">
-                                <button class="btn-primary"
-                                    style="padding: 10px 20px; font-size: 0.9em; border-radius: 8px;">Acompanhar</button>
+                            <div class="fixture-info">
+                                <span><i class="fas fa-calendar-day"></i> 10/05 • 12:40</span>
+                                <span><i class="fas fa-map-marker-alt"></i> Uberaba-MG</span>
+                            </div>
+                            <div class="fixture-cta">
+                                <button class="fixture-btn fixture-btn-upcoming"><i class="fas fa-bell"></i>
+                                    Acompanhar</button>
                             </div>
                         </div>
+                        <div class="fixture-badge badge-next"><i class="fas fa-clock"></i> Próx.</div>
+                    </div>
 
-                        <!-- JOGO 4 - CONFIRMADO -->
-                        <div class="match-card confirmed" data-location="fora" data-comp="lidtap">
-                            <div class="match-status confirmed-status">
-                                <i class="fas fa-calendar-check"></i>
-                                <span>Confirmado</span>
+                    <!-- RODADA 4 — A DEFINIR -->
+                    <div class="fixture-item fixture-tbd">
+                        <div class="fixture-round">4ª Rod.</div>
+                        <div class="fixture-body">
+                            <div class="fixture-team fixture-team-left">
+                                <img src="Imagens/Medicina UFTM.jpeg" alt="Medicina UFTM" class="fixture-logo"
+                                    onerror="this.src='https://via.placeholder.com/40?text=UFTM'">
+                                <span>Med. UFTM</span>
                             </div>
-
-                            <div class="match-teams premium">
-                                <div class="team home-team">
-                                    <div class="team-info">
-                                        <img src="Imagens/Medicina UFTM.jpeg" alt="Medicina UFTM" class="team-logo-tiny"
-                                            onerror="this.src='https://via.placeholder.com/75?text=UFTM'">
-                                        <span class="team-name">Medicina UFTM</span>
-                                    </div>
-                                    <div class="score-placeholder">-</div>
-                                </div>
-                                <div class="vs">VS</div>
-                                <div class="team away-team adesp-team">
-                                    <div class="team-info">
-                                        <img src="Imagens/CDHU.jpg" alt="ADESP/CDHU" class="team-logo-tiny">
-                                        <span class="team-name">ADESP/CDHU</span>
-                                    </div>
-                                    <div class="score-placeholder">-</div>
-                                </div>
+                            <div class="fixture-score">
+                                <span class="score-num score-pending">-</span>
+                                <span class="score-sep">x</span>
+                                <span class="score-num score-pending">-</span>
                             </div>
-
-                            <div class="match-meta">
-                                <div class="match-date">
-                                    <i class="fas fa-calendar-day"></i>
-                                    <span>A Definir • A Definir</span>
-                                </div>
-                                <div class="match-location">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>A Definir</span>
-                                </div>
-                                <div class="match-comp">
-                                    <i class="fas fa-trophy"></i>
-                                    <span>LIDTAP 2026</span>
-                                </div>
+                            <div class="fixture-team fixture-team-right">
+                                <img src="Imagens/CDHU.jpg" alt="ADESP/CDHU" class="fixture-logo">
+                                <span><strong>ADESP/CDHU</strong></span>
                             </div>
-
-                            <div class="match-actions">
-                                <button class="btn-primary"
-                                    style="padding: 10px 20px; font-size: 0.9em; border-radius: 8px; opacity: 0.5; cursor: not-allowed;"
-                                    disabled>Aguardando</button>
+                            <div class="fixture-info">
+                                <span><i class="fas fa-calendar-day"></i> A Definir</span>
+                                <span><i class="fas fa-map-marker-alt"></i> A Definir</span>
+                            </div>
+                            <div class="fixture-cta">
+                                <button class="fixture-btn fixture-btn-tbd" disabled><i
+                                        class="fas fa-hourglass-half"></i> Aguardando</button>
                             </div>
                         </div>
+                        <div class="fixture-badge badge-tbd"><i class="fas fa-question"></i></div>
+                    </div>
 
-                    </div> <!-- Fim matches-container -->
-                    <button id="scrollRightBtn" class="carousel-btn right"
-                        onclick="document.querySelector('.matches-container').scrollBy({left: 350, behavior: 'smooth'})"><i
-                            class="fas fa-chevron-right"></i></button>
-                </div> <!-- Fim carousel-wrapper -->
+                </div>
 
-                <!-- CALL TO ACTION FORA DO CARROSSEL -->
+                <!-- RESUMO RÁPIDO DO DESEMPENHO -->
+                <div class="jogos-record-strip"
+                    style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 40px; margin-bottom: 50px;">
+                    <div class="record-item" style="text-align: center;">
+                        <div
+                            style="font-family: 'Oswald', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--primary-green);">
+                            2</div>
+                        <div
+                            style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">
+                            Vitórias</div>
+                    </div>
+                    <div class="record-item" style="text-align: center;">
+                        <div
+                            style="font-family: 'Oswald', sans-serif; font-size: 2.5rem; font-weight: 800; color: #F4C542;">
+                            0</div>
+                        <div
+                            style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">
+                            Empates</div>
+                    </div>
+                    <div class="record-item" style="text-align: center;">
+                        <div
+                            style="font-family: 'Oswald', sans-serif; font-size: 2.5rem; font-weight: 800; color: #E53935;">
+                            0</div>
+                        <div
+                            style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">
+                            Derrotas</div>
+                    </div>
+                    <div class="record-item" style="text-align: center;">
+                        <div
+                            style="font-family: 'Oswald', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--primary-blue);">
+                            54</div>
+                        <div
+                            style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">
+                            Gols Pró</div>
+                    </div>
+                    <div class="record-item" style="text-align: center;">
+                        <div
+                            style="font-family: 'Oswald', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--text-muted);">
+                            44</div>
+                        <div
+                            style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">
+                            Gols Contra</div>
+                    </div>
+                </div>
+
+                <!-- ========================================
+                   TABELA DA LIGA - CLASSIFICAÇÃO
+                ======================================== -->
+                <div class="standings-section">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h3
+                            style="font-family: 'Oswald', sans-serif; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px;">
+                            <i class="fas fa-list-ol" style="color: var(--primary-green);"></i> Fase Classificatória
+                        </h3>
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">LIDTAP 2026 — Classificação atualizada
+                        </p>
+                    </div>
+
+                    <div class="standings-table-wrapper">
+                        <table class="standings-table">
+                            <thead>
+                                <tr>
+                                    <th class="pos-col">#</th>
+                                    <th class="team-col">Times</th>
+                                    <th>P</th>
+                                    <th>J</th>
+                                    <th>V</th>
+                                    <th>E</th>
+                                    <th>D</th>
+                                    <th class="hide-mobile">CA</th>
+                                    <th class="hide-mobile">CV</th>
+                                    <th>GP</th>
+                                    <th>GC</th>
+                                    <th>SG</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="pos-col"><span class="pos-badge pos-1">1</span></td>
+                                    <td class="team-col"><img src="Imagens/Uberaba.jpg"
+                                            onerror="this.src='https://via.placeholder.com/30?text=FU'"
+                                            class="table-team-logo"> FUNEL UBERABA - CNSD</td>
+                                    <td class="pts-col"><strong>7</strong></td>
+                                    <td>3</td>
+                                    <td>2</td>
+                                    <td>0</td>
+                                    <td>1</td>
+                                    <td class="hide-mobile">4</td>
+                                    <td class="hide-mobile">1</td>
+                                    <td>78</td>
+                                    <td>54</td>
+                                    <td class="sg-positive">24</td>
+                                </tr>
+                                <tr class="adesp-row">
+                                    <td class="pos-col"><span class="pos-badge pos-2">2</span></td>
+                                    <td class="team-col"><img src="Imagens/CDHU.jpg"
+                                            onerror="this.src='https://via.placeholder.com/30?text=AD'"
+                                            class="table-team-logo"> <strong>ADESP/CDHU</strong></td>
+                                    <td class="pts-col"><strong>6</strong></td>
+                                    <td>2</td>
+                                    <td>2</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td class="hide-mobile">1</td>
+                                    <td class="hide-mobile">0</td>
+                                    <td>54</td>
+                                    <td>44</td>
+                                    <td class="sg-positive">10</td>
+                                </tr>
+                                <tr>
+                                    <td class="pos-col"><span class="pos-badge pos-3">3</span></td>
+                                    <td class="team-col"><img src="Imagens/Medicina UFTM.jpeg"
+                                            onerror="this.src='https://via.placeholder.com/30?text=MF'"
+                                            class="table-team-logo"> MEDICINA FMTM</td>
+                                    <td class="pts-col"><strong>4</strong></td>
+                                    <td>2</td>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td>1</td>
+                                    <td class="hide-mobile">1</td>
+                                    <td class="hide-mobile">0</td>
+                                    <td>53</td>
+                                    <td>49</td>
+                                    <td class="sg-positive">4</td>
+                                </tr>
+                                <tr>
+                                    <td class="pos-col"><span class="pos-badge">4</span></td>
+                                    <td class="team-col"><img src="Imagens/Medicina Uniube.png"
+                                            onerror="this.src='https://via.placeholder.com/30?text=MU'"
+                                            class="table-team-logo"> MEDICINA UNIUBE</td>
+                                    <td class="pts-col"><strong>4</strong></td>
+                                    <td>2</td>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td>1</td>
+                                    <td class="hide-mobile">0</td>
+                                    <td class="hide-mobile">1</td>
+                                    <td>37</td>
+                                    <td>33</td>
+                                    <td class="sg-positive">4</td>
+                                </tr>
+                                <tr>
+                                    <td class="pos-col"><span class="pos-badge">5</span></td>
+                                    <td class="team-col"><img src="Imagens/Paracatu.jpg"
+                                            onerror="this.src='https://via.placeholder.com/30?text=AP'"
+                                            class="table-team-logo"> APHA PARACATU</td>
+                                    <td class="pts-col"><strong>4</strong></td>
+                                    <td>2</td>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td>1</td>
+                                    <td class="hide-mobile">2</td>
+                                    <td class="hide-mobile">0</td>
+                                    <td>50</td>
+                                    <td>50</td>
+                                    <td class="sg-neutral">0</td>
+                                </tr>
+                                <tr>
+                                    <td class="pos-col"><span class="pos-badge">6</span></td>
+                                    <td class="team-col"><img src="Imagens/Omegah Araxa.jpeg" class="table-team-logo">
+                                        OMEGAH ARAXÁ</td>
+                                    <td class="pts-col"><strong>4</strong></td>
+                                    <td>2</td>
+                                    <td>1</td>
+                                    <td>0</td>
+                                    <td>1</td>
+                                    <td class="hide-mobile">0</td>
+                                    <td class="hide-mobile">1</td>
+                                    <td>53</td>
+                                    <td>54</td>
+                                    <td class="sg-negative">-1</td>
+                                </tr>
+                                <tr>
+                                    <td class="pos-col"><span class="pos-badge">7</span></td>
+                                    <td class="team-col"><img src="Imagens/Sacramento.jpeg"
+                                            onerror="this.src='https://via.placeholder.com/30?text=SA'"
+                                            class="table-team-logo"> P.M DE SACRAMENTO</td>
+                                    <td class="pts-col"><strong>3</strong></td>
+                                    <td>3</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>3</td>
+                                    <td class="hide-mobile">3</td>
+                                    <td class="hide-mobile">0</td>
+                                    <td>49</td>
+                                    <td>90</td>
+                                    <td class="sg-negative">-41</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CALL TO ACTION -->
                 <div class="jogos-cta" style="margin-top: 40px; text-align: center;">
                     <h3 style="margin-bottom: 20px;">Quer receber alertas dos nossos jogos?</h3>
                     <div class="cta-buttons"

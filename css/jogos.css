@@ -572,6 +572,30 @@
     font-weight: 700;
 }
 
+/* Últimos Jogos - Indicadores de forma */
+.form-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin: 0 2px;
+}
+
+.form-dot.form-win {
+    background: var(--primary-green);
+    box-shadow: 0 0 4px rgba(31, 138, 77, 0.4);
+}
+
+.form-dot.form-loss {
+    background: #E53935;
+    box-shadow: 0 0 4px rgba(229, 57, 53, 0.4);
+}
+
+.form-dot.form-draw {
+    background: #F4C542;
+    box-shadow: 0 0 4px rgba(244, 197, 66, 0.4);
+}
+
 .match-actions {
     width: 100%;
 }

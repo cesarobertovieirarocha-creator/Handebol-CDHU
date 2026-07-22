@@ -1,0 +1,221 @@
+/* ========================================
+   NEWS TICKER
+======================================== */
+.news-ticker {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: var(--primary-blue);
+    color: var(--primary-white);
+    padding: 8px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    z-index: 1001;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.ticker-content {
+    display: inline-block;
+    padding-left: 100%;
+    animation: ticker 25s linear infinite;
+}
+
+.ticker-item {
+    display: inline-block;
+    padding: 0 40px;
+}
+
+.ticker-item i {
+    color: var(--primary-green);
+    margin-right: 8px;
+}
+
+@keyframes ticker {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* ========================================
+   PORTAL DE NOTÍCIAS (JORNAL)
+======================================== */
+.news-portal {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+}
+
+.news-main {
+    background: #FFFFFF;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    transition: 0.3s;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.news-main:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    transform: translateY(-5px);
+}
+
+.news-img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-bottom: 4px solid var(--primary-green);
+}
+
+.news-content {
+    padding: 25px;
+}
+
+.news-tag {
+    background: var(--primary-blue);
+    color: white;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 12px;
+}
+
+.news-title {
+    font-size: 2.1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 15px;
+    color: var(--primary-blue);
+    font-family: 'Oswald', sans-serif;
+}
+
+.news-excerpt {
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.news-excerpt.expanded,
+.news-side-excerpt.expanded {
+    display: block;
+}
+
+.news-read-more {
+    font-weight: 700;
+    color: var(--primary-green);
+    text-decoration: none;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+}
+
+.news-read-more:hover {
+    gap: 12px;
+    color: var(--primary-blue);
+}
+
+.news-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.news-side-item {
+    display: flex;
+    background: #FFFFFF;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: 0.3s;
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.news-side-item:hover {
+    transform: translateX(-5px);
+    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid var(--primary-green);
+}
+
+.news-side-img {
+    width: 160px;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+.news-side-content {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.news-side-content h4 {
+    font-size: 1.1rem;
+    line-height: 1.3;
+    margin-bottom: 5px;
+    color: var(--text-main);
+}
+
+.news-side-excerpt {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.news-date {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: auto;
+}
+
+/* ========================================
+   REGRAS RESPONSIVAS (NEWS)
+======================================== */
+@media (max-width: 900px) {
+    .news-portal {
+        grid-template-columns: 1fr;
+    }
+
+    .news-main .news-img {
+        aspect-ratio: 3 / 2;
+    }
+
+    .news-side-img {
+        width: 120px;
+        aspect-ratio: 1 / 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .news-ticker {
+        font-size: 0.70rem;
+        padding: 5px 0;
+    }
+}

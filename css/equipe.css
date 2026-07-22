@@ -345,7 +345,7 @@
     gap: 8px;
     align-items: center;
     flex-grow: 1;
-    align-content: start;
+    align-content: space-between;
 }
 
 .player-info h3 {
@@ -358,9 +358,6 @@
     font-family: 'Oswald', sans-serif;
     text-align: left;
     line-height: 1.2;
-    min-height: 3.12rem;
-    display: flex;
-    align-items: center;
 }
 
 .player-info p {

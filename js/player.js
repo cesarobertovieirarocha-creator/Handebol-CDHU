@@ -98,3 +98,70 @@ function initPlayerCardClicks() {
         });
     });
 }
+
+/**
+ * Renderiza as estatísticas gerais do time na seção "Estatísticas"
+ */
+function renderTeamStats() {
+    var artilheirosList = document.getElementById('stats-artilheiros-list');
+    var jogosList = document.getElementById('stats-jogos-list');
+
+    if (!artilheirosList || !jogosList || typeof playerStatsData === 'undefined') return;
+
+    var playersArray = [];
+    for (var playerName in playerStatsData) {
+        if (playerStatsData.hasOwnProperty(playerName)) {
+            playersArray.push({
+                name: playerName,
+                stats: playerStatsData[playerName]
+            });
+        }
+    }
+
+    // Artilheiros: ordenar por gols (desc), depois por nome
+    var artilheiros = playersArray.slice().sort(function(a, b) {
+        if (b.stats.gols !== a.stats.gols) {
+            return b.stats.gols - a.stats.gols;
+        }
+        return a.name.localeCompare(b.name);
+    }).filter(function(p) { return p.stats.gols > 0; });
+
+    // Função auxiliar para pegar a imagem do jogador
+    function getPlayerImage(playerName) {
+        var imgElement = document.querySelector('.player-card img[alt="' + playerName + '"]');
+        if (imgElement) {
+            return imgElement.getAttribute('src');
+        }
+        return 'https://via.placeholder.com/30?text=Sem+Foto';
+    }
+
+    var artilheirosHTML = '';
+    artilheiros.forEach(function(p, index) {
+        var imgSrc = getPlayerImage(p.name);
+        artilheirosHTML += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: ' + (index === artilheiros.length - 1 ? 'none' : '1px solid #eee') + ';">' +
+                           '<span style="display: flex; align-items: center; gap: 10px;"><strong>' + (index + 1) + 'º</strong> <img src="' + imgSrc + '" alt="' + p.name + '" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;"> ' + p.name + '</span>' +
+                           '<strong>' + p.stats.gols + '</strong>' +
+                           '</div>';
+    });
+    artilheirosList.innerHTML = artilheirosHTML || '<div style="padding: 10px; text-align: center; color: #888;">Sem dados</div>';
+
+    // Jogos: ordenar por jogos (desc), depois por nome
+    var jogos = playersArray.slice().sort(function(a, b) {
+        if (b.stats.jogos !== a.stats.jogos) {
+            return b.stats.jogos - a.stats.jogos;
+        }
+        return a.name.localeCompare(b.name);
+    }).filter(function(p) { return p.stats.jogos > 0; });
+
+    var jogosHTML = '';
+    jogos.forEach(function(p, index) {
+        var imgSrc = getPlayerImage(p.name);
+        jogosHTML += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: ' + (index === jogos.length - 1 ? 'none' : '1px solid #eee') + ';">' +
+                     '<span style="display: flex; align-items: center; gap: 10px;"><strong>' + (index + 1) + 'º</strong> <img src="' + imgSrc + '" alt="' + p.name + '" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;"> ' + p.name + '</span>' +
+                     '<strong>' + p.stats.jogos + '</strong>' +
+                     '</div>';
+    });
+    jogosList.innerHTML = jogosHTML || '<div style="padding: 10px; text-align: center; color: #888;">Sem dados</div>';
+}
+
+document.addEventListener('DOMContentLoaded', renderTeamStats);

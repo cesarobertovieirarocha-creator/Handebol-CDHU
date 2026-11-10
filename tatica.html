@@ -1,0 +1,2698 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Prancheta Tática – ADESP/CDHU Uberlândia</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="Imagens/CDHU.png">
+  <!-- Guarda de Autenticação da Área Dev (Execução imediata para proteção de dados) -->
+  <script src="js/auth-guard.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Design System e Componentes Compartilhados -->
+  <link rel="stylesheet" href="css/components.css">
+  <script src="js/utils/storage.js"></script>
+  <!-- Módulo da Prancheta Tática (Abas, Log de Eventos, Regras IHF) -->
+  <script src="js/modules/tactical-board.js"></script>
+  <script src="data/plays.js"></script>
+  <script src="js/modules/playbook.js"></script>
+  <!-- Folha de Estilos Exclusiva da Prancheta Tática -->
+  <link rel="stylesheet" href="css/tatica.css">
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="tac-nav">
+    <a href="performance.html" class="tac-brand">
+      <img src="Imagens/CDHU.png" alt="CDHU" onerror="this.style.display='none'">
+      <div class="tac-brand-text">
+        <h1>ADESP / CDHU</h1>
+        <span>Prancheta Tática</span>
+      </div>
+    </a>
+    <div class="tac-nav-right">
+      <button class="nav-btn" onclick="undoAction()" title="Desfazer (Ctrl+Z)"><i class="fas fa-undo"></i>
+        Desfazer</button>
+      <button class="nav-btn" onclick="redoAction()" title="Refazer (Ctrl+Y)"><i class="fas fa-redo"></i>
+        Refazer</button>
+      <button class="nav-btn" onclick="clearAllDrawings()"><i class="fas fa-eraser"></i> Limpar</button>
+      <button class="nav-btn" onclick="resetPlayers()"><i class="fas fa-sync-alt"></i> Reset</button>
+      <button class="nav-btn accent" onclick="exportPNG()"><i class="fas fa-camera"></i> Exportar PNG</button>
+      <a href="performance.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Performance</a>
+    </div>
+  </nav>
+
+  <!-- ACTIVE TEAM INDICATOR -->
+  <div class="active-team-bar">
+    <div class="active-team-dot" id="activeTeamDot"></div>
+    <span id="activeTeamLabel">Nenhum time selecionado — clique próximo a um jogador para detectar</span>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <div class="tac-layout">
+
+    <!-- LEFT: TOOLS SIDEBAR -->
+    <aside class="tools-sidebar" id="toolsSidebar">
+      <button class="tool-btn active" id="tool-select" data-tool="select" data-tip="Selecionar (S)"
+        onclick="setTool('select')">
+        <i class="fas fa-mouse-pointer"></i><span>Seleção</span>
+      </button>
+      <button class="tool-btn" id="tool-ball" data-tool="ball" data-tip="Bola de Handebol (O)"
+        onclick="setTool('ball')">
+        <i class="fas fa-volleyball-ball"></i><span>Bola</span>
+      </button>
+      <button class="tool-btn" id="tool-move" data-tool="move" data-tip="Movimento (M)" onclick="setTool('move')">
+        <i class="fas fa-long-arrow-alt-right"></i><span>Mover</span>
+      </button>
+      <button class="tool-btn" id="tool-pass" data-tool="pass" data-tip="Passe (P)" onclick="setTool('pass')">
+        <i class="fas fa-share"></i><span>Passe</span>
+      </button>
+      <button class="tool-btn" id="tool-dribble" data-tool="dribble" data-tip="Drible (D)" onclick="setTool('dribble')">
+        <i class="fas fa-wave-square"></i><span>Drible</span>
+      </button>
+      <button class="tool-btn" id="tool-shot" data-tool="shot" data-tip="Arremesso ao Gol (G)"
+        onclick="setTool('shot')">
+        <i class="fas fa-bullseye"></i><span>Tiro</span>
+      </button>
+      <div class="tool-sep"></div>
+      <button class="tool-btn" id="tool-block" data-tool="block" data-tip="Bloqueio Defensivo (B)"
+        onclick="setTool('block')">
+        <i class="fas fa-shield-alt"></i><span>Bloq.</span>
+      </button>
+      <button class="tool-btn" id="tool-zone" data-tool="zone" data-tip="Demarcar Zona (Z)" onclick="setTool('zone')">
+        <i class="fas fa-draw-polygon"></i><span>Zona</span>
+      </button>
+      <button class="tool-btn" id="tool-text" data-tool="text" data-tip="Anotação de Texto (T)"
+        onclick="setTool('text')">
+        <i class="fas fa-font"></i><span>Texto</span>
+      </button>
+      <div class="tool-sep"></div>
+      <button class="tool-btn" id="tool-eraser" data-tool="eraser" data-tip="Borracha (E)" onclick="setTool('eraser')">
+        <i class="fas fa-eraser"></i><span>Apagar</span>
+      </button>
+      <div class="tool-sep"></div>
+      <div style="font-size:0.6rem;color:var(--muted);text-align:center;padding:2px 0;">COR</div>
+      <input type="color" class="tool-color-swatch" id="drawColorPicker" value="#ffffff" title="Cor do desenho"
+        onchange="state.drawColor=this.value;">
+      <div style="font-size:0.6rem;color:var(--muted);text-align:center;padding:2px 0;">ESP</div>
+      <input type="range" min="1" max="8" value="2" id="lineWidthSlider" style="width:46px;accent-color:var(--accent);"
+        oninput="state.lineWidth=+this.value;" title="Espessura">
+    </aside>
+
+    <!-- CENTER: CANVAS -->
+    <main class="canvas-area">
+      <!-- VIEW TOGGLE & TACTICAL ACTIONS -->
+      <div class="view-toggle">
+        <div class="view-btn-group">
+          <button class="view-btn active" onclick="setView('full')"><i class="fas fa-expand"></i> Quadra
+            Completa</button>
+          <button class="view-btn" onclick="setView('attack')"><i class="fas fa-crosshairs"></i> Metade Ataque</button>
+          <button class="view-btn" onclick="setView('defense')"><i class="fas fa-shield-alt"></i> Metade Defesa</button>
+        </div>
+        <div class="view-btn-group">
+          <button class="view-btn action-btn-play" onclick="executePlay()"
+            title="Executar e visualizar jogada desenhada (Espaço)"><i class="fas fa-play"></i> Play Jogada</button>
+          <button class="view-btn action-btn-shot" onclick="shootToGoal()" title="Traçar arremesso direto no gol"><i
+              class="fas fa-bullseye"></i> Chutar a Gol</button>
+          <button class="view-btn action-btn-block" id="btnBlockView" onclick="toggleDefenseBlock()"
+            title="Simular que a defesa bloqueou com sucesso"><i class="fas fa-shield-alt"></i> Bloqueio: <span
+              id="blockViewText">OFF</span></button>
+          <button class="view-btn action-btn-gk7" id="btnGK7View" onclick="toggleGoalieLinha()"
+            title="Substituir Goleiro pelo Jogador nº 7 (Goleiro-Linha)"><i class="fas fa-exchange-alt"></i> <span
+              id="gk7ViewText">GK ↔ Nº 7</span></button>
+          <button class="view-btn" onclick="resetBallPosition()" title="Posicionar a bola no armador central"><i
+              class="fas fa-volleyball-ball"></i> Repor Bola</button>
+        </div>
+      </div>
+      <div class="canvas-wrapper" id="canvasWrapper">
+        <div id="playToast" class="play-toast">
+          <span id="playToastIcon">▶</span>
+          <span id="playToastText">Executando jogada...</span>
+        </div>
+        <canvas id="courtCanvas"></canvas>
+      </div>
+    </main>
+
+    <!-- RIGHT: SYSTEMS & EVENT LOG PANEL -->
+    <aside class="systems-panel" id="systemsPanel">
+      <!-- TABS BAR -->
+      <div class="tac-side-tabs">
+        <button class="tac-tab-btn active" data-tab="sistemas" title="Sistemas Táticos"><i class="fas fa-sitemap"></i>
+          Sistemas</button>
+        <button class="tac-tab-btn" data-tab="log" title="Log de Eventos da Jogada"><i class="fas fa-list-ol"></i>
+          Log</button>
+        <button class="tac-tab-btn" data-tab="biblioteca" title="Jogadas Salvas"><i class="fas fa-bookmark"></i>
+          Biblioteca</button>
+        <button class="tac-tab-btn" data-tab="playbook" title="Playbook de Seleções"><i class="fas fa-book-open"></i> Playbook</button>
+        <button class="tac-tab-btn" data-tab="times" title="Cores e Nomes"><i class="fas fa-palette"></i> Times</button>
+        <button class="tac-tab-btn" onclick="TacticalBoard.openRulesModal()" title="Regras Oficiais IHF"
+          style="flex:0 0 38px;color:var(--accent);"><i class="fas fa-question-circle"></i></button>
+      </div>
+
+      <!-- PANE 1: SISTEMAS TÁTICOS -->
+      <div class="tac-tab-pane active" id="pane-sistemas">
+        <div class="sys-section" style="padding:0;border:none;">
+          <div class="sys-title"><i class="fas fa-shield-alt"></i> Sistemas Defensivos</div>
+          <button class="sys-btn def" onclick="applyDefSystem('6-0')"><i class="fas fa-shield-alt"></i> 6-0
+            Clássica</button>
+          <button class="sys-btn def" onclick="applyDefSystem('5-1')"><i class="fas fa-shield-alt"></i> 5-1 com
+            Avançado</button>
+          <button class="sys-btn def" onclick="applyDefSystem('4-2')"><i class="fas fa-shield-alt"></i> 4-2 Duas
+            Linhas</button>
+          <button class="sys-btn def" onclick="applyDefSystem('3-2-1')"><i class="fas fa-shield-alt"></i> 3-2-1
+            Pirâmide</button>
+          <button class="sys-btn def" onclick="applyDefSystem('3-3')"><i class="fas fa-shield-alt"></i> 3-3 Pressão
+            Total</button>
+        </div>
+
+        <div class="sys-section" style="padding:0;border:none;margin-top:14px;">
+          <div class="sys-title"><i class="fas fa-bolt"></i> Sistemas Ofensivos</div>
+          <button class="sys-btn atk" onclick="applyAtkSystem('3-3')"><i class="fas fa-running"></i> 3-3 Padrão (1
+            Pivô)</button>
+          <button class="sys-btn atk" onclick="applyAtkSystem('2-4')"><i class="fas fa-users"></i> 2-4 (2
+            Pivôs)</button>
+          <button class="sys-btn atk" onclick="applyAtkSystem('contra')"><i class="fas fa-forward"></i> Contra-Ataque
+            Veloz</button>
+          <button class="sys-btn atk" onclick="applyAtkSystem('7v6')"><i class="fas fa-plus-circle"></i> 7x6
+            (Goleiro-Linha)</button>
+        </div>
+      </div>
+
+      <!-- PANE 2: LOG DE EVENTOS & REGRAS AO VIVO -->
+      <div class="tac-tab-pane" id="pane-log">
+        <div class="log-toolbar">
+          <button class="log-btn primary" onclick="executePlay()"><i class="fas fa-play"></i> Simular</button>
+          <button class="log-btn accent" onclick="TacticalBoard.exportPlaybook()"><i class="fas fa-file-export"></i>
+            Playbook</button>
+        </div>
+
+        <!-- KPIs da Jogada -->
+        <div class="play-summary-grid">
+          <div class="play-kpi-card">
+            <div class="play-kpi-val" id="kpiTotalPasses">0</div>
+            <div class="play-kpi-lbl">Passes</div>
+          </div>
+          <div class="play-kpi-card">
+            <div class="play-kpi-val" id="kpiDuration">0.0s</div>
+            <div class="play-kpi-lbl">Tempo Est.</div>
+          </div>
+          <div class="play-kpi-card">
+            <div class="play-kpi-val" id="kpiFinalZone">-</div>
+            <div class="play-kpi-lbl">Zona Final</div>
+          </div>
+        </div>
+
+        <!-- Alertas ao Vivo de Regras IHF -->
+        <div id="tacticalAlertContainer" style="display:none;"></div>
+
+        <!-- Tabela do Log de Eventos -->
+        <div class="event-log-container">
+          <table class="event-log-table">
+            <thead>
+              <tr>
+                <th style="width:28px">#</th>
+                <th style="width:46px">Tempo</th>
+                <th>Evento & Detalhes</th>
+              </tr>
+            </thead>
+            <tbody id="eventLogTbody">
+              <tr>
+                <td colspan="3" style="text-align:center;color:var(--muted);padding:24px 10px;">
+                  <i class="fas fa-pencil-ruler"
+                    style="font-size:1.5rem;margin-bottom:8px;display:block;opacity:0.4;"></i>
+                  Nenhum movimento desenhado.<br>Trace passes, movimentos ou arremessos para gerar o log tático.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:0.7rem;color:var(--muted);text-align:center;">
+          <i class="fas fa-info-circle"></i> Clique em uma linha para destacar a ação no campo.
+        </div>
+      </div>
+
+      <!-- PANE 3: BIBLIOTECA DE PRESETS (Storage Seguro) -->
+      <div class="tac-tab-pane" id="pane-biblioteca">
+        <div class="sys-title"><i class="fas fa-bookmark"></i> Situações Salvas</div>
+        <button class="sys-btn" onclick="savePreset()"
+          style="background:var(--primary);color:#fff;border-color:transparent;text-align:center;font-weight:600;margin-bottom:10px;"><i
+            class="fas fa-save"></i> Salvar Situação Atual</button>
+        <div id="presetsList"></div>
+      </div>
+
+      <!-- PANE: PLAYBOOK DE SELEÇÕES (data/plays.js) -->
+      <div class="tac-tab-pane" id="pane-playbook"></div>
+
+      <!-- PANE 4: TIMES & CORES -->
+      <div class="tac-tab-pane" id="pane-times">
+        <div class="sys-title"><i class="fas fa-palette"></i> Configuração de Equipes</div>
+        <div class="team-row" style="background:var(--bg-card);padding:8px 10px;border-radius:8px;">
+          <label>ADESP (A)</label>
+          <input type="color" class="color-pick" id="teamAColor" value="#0A509E"
+            onchange="changeTeamColor('A', this.value)">
+          <input type="text" id="teamAName" value="ADESP"
+            style="width:85px;background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 6px;font-size:0.78rem;font-family:inherit;"
+            oninput="teamNames.A=this.value;render();">
+        </div>
+        <div class="team-row" style="background:var(--bg-card);padding:8px 10px;border-radius:8px;margin-top:8px;">
+          <label>Adversário (B)</label>
+          <input type="color" class="color-pick" id="teamBColor" value="#ef4444"
+            onchange="changeTeamColor('B', this.value)">
+          <input type="text" id="teamBName" value="ADV"
+            style="width:85px;background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 6px;font-size:0.78rem;font-family:inherit;"
+            oninput="teamNames.B=this.value;render();">
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- TIMELINE BAR -->
+  <div class="timeline-bar" id="timelineBar">
+    <div class="tl-controls">
+      <button class="tl-btn" onclick="prevFrame()" title="Quadro anterior (←)"><i
+          class="fas fa-step-backward"></i></button>
+      <button class="tl-btn play-btn" id="playBtn" onclick="togglePlay()" title="Play/Pause (Space)"><i
+          class="fas fa-play" id="playIcon"></i></button>
+      <button class="tl-btn" onclick="nextFrame()" title="Próximo quadro (→)"><i
+          class="fas fa-step-forward"></i></button>
+      <button class="tl-btn" onclick="addFrame()" title="Adicionar quadro"
+        style="background:var(--green);border-color:var(--green);"><i class="fas fa-plus"></i></button>
+      <button class="tl-btn" onclick="deleteFrame()" title="Excluir quadro"
+        style="background:#7f1d1d;border-color:#7f1d1d;"><i class="fas fa-trash"></i></button>
+    </div>
+    <div class="tl-frames" id="tlFrames"></div>
+    <div style="font-size:0.75rem;color:var(--muted);flex-shrink:0;" id="frameCounter">1 / 1</div>
+  </div>
+
+  <!-- TEAMS BOTTOM BAR -->
+  <div class="teams-bar">
+    <label>Intervalo animação:</label>
+    <input type="range" min="500" max="4000" step="100" value="1500" id="animSpeed"
+      style="width:80px;accent-color:var(--accent);"
+      oninput="animInterval=+this.value;document.getElementById('animSpeedVal').textContent=(this.value/1000).toFixed(1)+'s'">
+    <span id="animSpeedVal" style="font-size:0.75rem;color:var(--muted);">1.5s</span>
+    <label style="margin-left:10px;">Duração transição:</label>
+    <input type="range" min="200" max="1500" step="50" value="800" id="animDuration"
+      style="width:80px;accent-color:var(--accent);"
+      oninput="animDurationMs=+this.value;document.getElementById('animDurVal').textContent=(this.value/1000).toFixed(1)+'s'">
+    <span id="animDurVal" style="font-size:0.75rem;color:var(--muted);">0.8s</span>
+    <div class="undo-redo" style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+      <span style="font-size:0.72rem;color:var(--muted);">Teclas: ← → Quadros | Space Play | Ctrl+Z Desfazer</span>
+    </div>
+  </div>
+
+  <!-- PLAYER CONTEXT POPUP -->
+  <div class="player-popup" id="playerPopup">
+    <div class="pp-title" id="ppTitle">Jogador</div>
+    <button class="pp-btn" id="ppToggleGK7Btn" onclick="toggleGoalieLinha(); closePlayerPopup();"
+      style="color:var(--accent);font-weight:600;"><i class="fas fa-exchange-alt"></i> 🔁 GK ↔ Jogador nº 7</button>
+    <button class="pp-btn" onclick="setPlayerState('normal')">✅ Normal</button>
+    <button class="pp-btn" onclick="setPlayerState('yellow')">🟡 Cartão Amarelo</button>
+    <button class="pp-btn" onclick="setPlayerState('suspended')">⏸ Suspensão 2min</button>
+    <button class="pp-btn" onclick="setPlayerState('disqualified')">🔴 Desclassificado</button>
+    <button class="pp-btn" onclick="closePlayerPopup()">✖ Fechar</button>
+  </div>
+
+  <!-- TEXT INPUT OVERLAY -->
+  <div id="textInputOverlay">
+    <h4><i class="fas fa-font"></i> Adicionar Texto</h4>
+    <input type="text" id="textInputField" placeholder="Digite o texto..." maxlength="40">
+    <div class="text-overlay-btns">
+      <button class="to-btn cancel" onclick="cancelTextInput()">Cancelar</button>
+      <button class="to-btn ok" onclick="confirmTextInput()">OK</button>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    /* ═══════════════════════════════════════════════════
+       CONSTANTS & COURT DIMENSIONS (IHF official meters)
+       ═══════════════════════════════════════════════════ */
+    const COURT_W = 40; // meters
+    const COURT_H = 20; // meters
+    const GOAL_W = 3;   // meters
+    const GOAL_H = 2;   // meters
+    const GOAL_AREA_R = 6;  // 6m semicircle radius
+    const FREE_THROW_R = 9; // 9m dashed line
+    const PENALTY_LINE = 7; // 7m line
+    const GK_LINE = 4;      // 4m restriction
+    const SUBZONE = 4.5;    // substitution zone half-width
+
+    /* ═══════════════════════════════════════════════════
+       STATE
+       ═══════════════════════════════════════════════════ */
+    let state = {
+      tool: 'select',
+      activeTeam: null,
+      drawColor: '#ffffff',
+      lineWidth: 2,
+      view: 'full',
+      isDrawing: false,
+      isDragging: false,
+      isDraggingBall: false,
+      selectedPlayer: null,
+      tempPoints: [],
+      history: [],
+      redoStack: [],
+      textPending: null, // {x, y} in meters for text placement
+    };
+
+    let teamColors = { A: '#0A509E', B: '#ef4444' };
+    let teamNames = { A: 'ADESP', B: 'ADV' };
+    let frames = [];
+    let currentFrame = 0;
+    let isPlaying = false;
+    let playTimer = null;
+    let animInterval = 1500;
+    let animDurationMs = 800;
+    let animRafId = null;
+    let selectedElement = null; // drawing element for eraser
+    let contextPlayer = null;   // for right-click popup
+    let presets = [];
+
+    // Ball state
+    let ball = { x: 26, y: 10, visible: true, heldBy: 'a_ac' };
+    let animBall = null;
+    let simBall = null;
+    let simBlockEffect = null;
+    let isGK7Active = false;
+    let isDefenseBlocked = false;
+    let isSimulatingPlay = false;
+    let simRafId = null;
+
+    /* ═══════════════════════════════════════════════════
+       PLAYER DEFINITIONS (positions in court meters)
+       Origin: top-left of court, X→right, Y→down
+       Left goal at x=0, Right goal at x=40
+       Linha numerada de 1 a 6 + Goleiro (GK)
+       ═══════════════════════════════════════════════════ */
+    function defaultPlayers() {
+      return [
+        // Team A — Ataque (Linha 1 a 6 + GK)
+        { id: 'a_gk', team: 'A', num: 1, label: 'GK', x: 2, y: 10, state: 'normal', isGK: true },
+        { id: 'a_pe', team: 'A', num: 1, label: 'PE', x: 19, y: 2, state: 'normal', isGK: false },
+        { id: 'a_ae', team: 'A', num: 2, label: 'AE', x: 24, y: 6, state: 'normal', isGK: false },
+        { id: 'a_ac', team: 'A', num: 3, label: 'AC', x: 26, y: 10, state: 'normal', isGK: false },
+        { id: 'a_ad', team: 'A', num: 4, label: 'AD', x: 24, y: 14, state: 'normal', isGK: false },
+        { id: 'a_pd', team: 'A', num: 5, label: 'PD', x: 19, y: 18, state: 'normal', isGK: false },
+        { id: 'a_pv', team: 'A', num: 6, label: 'PV', x: 30, y: 10, state: 'normal', isGK: false },
+        // Team B — Defesa 6-0 (Linha 1 a 6 + GK posicionados no arco dos 6m)
+        { id: 'b_gk', team: 'B', num: 1, label: 'GK', x: 38, y: 10, state: 'normal', isGK: true },
+        { id: 'b_d1', team: 'B', num: 1, label: 'D1', x: 36.5, y: 3.5, state: 'normal', isGK: false },
+        { id: 'b_d2', team: 'B', num: 2, label: 'D2', x: 34.8, y: 6.2, state: 'normal', isGK: false },
+        { id: 'b_d3', team: 'B', num: 3, label: 'D3', x: 34.0, y: 8.8, state: 'normal', isGK: false },
+        { id: 'b_d4', team: 'B', num: 4, label: 'D4', x: 34.0, y: 11.2, state: 'normal', isGK: false },
+        { id: 'b_d5', team: 'B', num: 5, label: 'D5', x: 34.8, y: 13.8, state: 'normal', isGK: false },
+        { id: 'b_d6', team: 'B', num: 6, label: 'D6', x: 36.5, y: 16.5, state: 'normal', isGK: false },
+      ];
+    }
+
+    let players = defaultPlayers();
+
+    /* ═══════════════════════════════════════════════════
+       CANVAS SETUP
+       ═══════════════════════════════════════════════════ */
+    const canvas = document.getElementById('courtCanvas');
+    const ctx = canvas.getContext('2d');
+    const wrapper = document.getElementById('canvasWrapper');
+
+    let scale = 1;      // pixels per meter
+    let offsetX = 0;    // canvas left offset (px) for centering
+    let offsetY = 0;    // canvas top offset (px) for centering
+    let dpr = window.devicePixelRatio || 1;
+
+    function resizeCanvas() {
+      dpr = window.devicePixelRatio || 1;
+      const rect = wrapper.getBoundingClientRect();
+      const W = rect.width;
+      const H = rect.height;
+
+      let viewW = COURT_W, viewH = COURT_H;
+      if (state.view === 'attack' || state.view === 'defense') {
+        viewW = COURT_W / 2;
+      }
+
+      const scaleX = W / viewW;
+      const scaleY = H / viewH;
+      scale = Math.min(scaleX, scaleY) * 0.97;
+
+      const drawW = viewW * scale;
+      const drawH = viewH * scale;
+      offsetX = (W - drawW) / 2;
+      offsetY = (H - drawH) / 2;
+
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      render();
+    }
+
+    /* Court-meter → canvas-pixel */
+    function c2p(mx, my) {
+      let px, py;
+      if (state.view === 'attack') {
+        // show left half (x: 0..20)
+        px = offsetX + mx * scale;
+      } else if (state.view === 'defense') {
+        // show right half (x: 20..40)
+        px = offsetX + (mx - 20) * scale;
+      } else {
+        px = offsetX + mx * scale;
+      }
+      py = offsetY + my * scale;
+      return { x: px, y: py };
+    }
+
+    /* Canvas-pixel → court-meter */
+    function p2c(px, py) {
+      let mx, my;
+      if (state.view === 'attack') {
+        mx = (px - offsetX) / scale;
+      } else if (state.view === 'defense') {
+        mx = (px - offsetX) / scale + 20;
+      } else {
+        mx = (px - offsetX) / scale;
+      }
+      my = (py - offsetY) / scale;
+      return { x: mx, y: my };
+    }
+
+    /* ═══════════════════════════════════════════════════
+       COURT DRAWING
+       ═══════════════════════════════════════════════════ */
+    function drawCourt() {
+      const W = canvas.width / dpr;
+      const H = canvas.height / dpr;
+
+      // Background
+      ctx.fillStyle = '#071322';
+      ctx.fillRect(0, 0, W, H);
+
+      // Court surface
+      const tl = c2p(0, 0);
+      const br = c2p(COURT_W, COURT_H);
+      const cw = br.x - tl.x;
+      const ch = br.y - tl.y;
+
+      ctx.fillStyle = '#2980b9';
+      ctx.fillRect(tl.x, tl.y, cw, ch);
+
+      // Court outer boundary
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([]);
+      ctx.strokeRect(tl.x, tl.y, cw, ch);
+
+      // Center line
+      const cl = c2p(COURT_W / 2, 0);
+      const clb = c2p(COURT_W / 2, COURT_H);
+      ctx.beginPath();
+      ctx.moveTo(cl.x, cl.y);
+      ctx.lineTo(clb.x, clb.y);
+      ctx.stroke();
+
+      // Center circle (optional freehand circle r=3m)
+      const cc = c2p(COURT_W / 2, COURT_H / 2);
+      ctx.beginPath();
+      ctx.arc(cc.x, cc.y, 3 * scale, 0, Math.PI * 2);
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // LEFT GOAL AREA
+      drawGoalArea(0);
+      // RIGHT GOAL AREA
+      drawGoalArea(COURT_W);
+
+      // 7m PENALTY lines
+      drawPenaltyLines();
+
+      // 4m GK restriction lines
+      drawGKLines();
+
+      // Substitution zone indicators
+      drawSubZone();
+
+      // Goals
+      drawGoal(0);  // left
+      drawGoal(COURT_W); // right
+    }
+
+    function drawGoalArea(goalX) {
+      // 6m goal area (solid) and 9m free-throw (dashed)
+      const goalMidY = COURT_H / 2;
+      const postTop = goalMidY - GOAL_W / 2;
+      const postBot = goalMidY + GOAL_W / 2;
+      const isLeft = goalX === 0;
+
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+
+      // ── 6m line ──
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      if (isLeft) {
+        ctx.arc(c2p(goalX, postTop).x, c2p(goalX, postTop).y, GOAL_AREA_R * scale, -Math.PI / 2, 0);
+        ctx.lineTo(c2p(goalX + GOAL_AREA_R, postBot).x, c2p(goalX + GOAL_AREA_R, postBot).y);
+        ctx.arc(c2p(goalX, postBot).x, c2p(goalX, postBot).y, GOAL_AREA_R * scale, 0, Math.PI / 2);
+      } else {
+        ctx.arc(c2p(goalX, postTop).x, c2p(goalX, postTop).y, GOAL_AREA_R * scale, -Math.PI / 2, Math.PI, true);
+        ctx.lineTo(c2p(goalX - GOAL_AREA_R, postBot).x, c2p(goalX - GOAL_AREA_R, postBot).y);
+        ctx.arc(c2p(goalX, postBot).x, c2p(goalX, postBot).y, GOAL_AREA_R * scale, Math.PI, Math.PI / 2, true);
+      }
+      ctx.stroke();
+
+      // ── 9m dashed line ──
+      ctx.setLineDash([8 * scale / 10, 5 * scale / 10]);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      if (isLeft) {
+        ctx.arc(c2p(goalX, postTop).x, c2p(goalX, postTop).y, FREE_THROW_R * scale, -Math.PI / 2, 0);
+        ctx.lineTo(c2p(goalX + FREE_THROW_R, postBot).x, c2p(goalX + FREE_THROW_R, postBot).y);
+        ctx.arc(c2p(goalX, postBot).x, c2p(goalX, postBot).y, FREE_THROW_R * scale, 0, Math.PI / 2);
+      } else {
+        ctx.arc(c2p(goalX, postTop).x, c2p(goalX, postTop).y, FREE_THROW_R * scale, -Math.PI / 2, Math.PI, true);
+        ctx.lineTo(c2p(goalX - FREE_THROW_R, postBot).x, c2p(goalX - FREE_THROW_R, postBot).y);
+        ctx.arc(c2p(goalX, postBot).x, c2p(goalX, postBot).y, FREE_THROW_R * scale, Math.PI, Math.PI / 2, true);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.lineWidth = 2;
+    }
+
+    function drawPenaltyLines() {
+      // 7m mark: 1m line centered on y=10 at x=7 and x=33
+      const goalMidY = COURT_H / 2;
+      const halfMark = 0.5;
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      // Left 7m
+      const lA = c2p(PENALTY_LINE, goalMidY - halfMark);
+      const lB = c2p(PENALTY_LINE, goalMidY + halfMark);
+      ctx.beginPath(); ctx.moveTo(lA.x, lA.y); ctx.lineTo(lB.x, lB.y); ctx.stroke();
+      // Right 7m
+      const rA = c2p(COURT_W - PENALTY_LINE, goalMidY - halfMark);
+      const rB = c2p(COURT_W - PENALTY_LINE, goalMidY + halfMark);
+      ctx.beginPath(); ctx.moveTo(rA.x, rA.y); ctx.lineTo(rB.x, rB.y); ctx.stroke();
+    }
+
+    function drawGKLines() {
+      const goalMidY = COURT_H / 2;
+      const halfMark = 0.075; // 15cm total
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      // Left 4m
+      const lA = c2p(GK_LINE, goalMidY - halfMark);
+      const lB = c2p(GK_LINE, goalMidY + halfMark);
+      ctx.beginPath(); ctx.moveTo(lA.x, lA.y); ctx.lineTo(lB.x, lB.y); ctx.stroke();
+      // Right 4m
+      const rA = c2p(COURT_W - GK_LINE, goalMidY - halfMark);
+      const rB = c2p(COURT_W - GK_LINE, goalMidY + halfMark);
+      ctx.beginPath(); ctx.moveTo(rA.x, rA.y); ctx.lineTo(rB.x, rB.y); ctx.stroke();
+    }
+
+    function drawSubZone() {
+      const midY = COURT_H / 2;
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      // Top sideline markers at center ± 4.5m
+      const pts = [
+        [c2p(COURT_W / 2 - SUBZONE, 0), c2p(COURT_W / 2 - SUBZONE, 0.5)],
+        [c2p(COURT_W / 2 + SUBZONE, 0), c2p(COURT_W / 2 + SUBZONE, 0.5)],
+        [c2p(COURT_W / 2 - SUBZONE, COURT_H), c2p(COURT_W / 2 - SUBZONE, COURT_H - 0.5)],
+        [c2p(COURT_W / 2 + SUBZONE, COURT_H), c2p(COURT_W / 2 + SUBZONE, COURT_H - 0.5)],
+      ];
+      for (const [a, b] of pts) {
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      }
+      ctx.setLineDash([]);
+    }
+
+    function drawGoal(goalX) {
+      const isLeft = goalX === 0;
+      const midY = COURT_H / 2;
+      const halfW = GOAL_W / 2;
+      const depth = isLeft ? -1.5 : 1.5; // goal depth in meters (pointing inward)
+      const postTop = midY - halfW;
+      const postBot = midY + halfW;
+
+      // Goal rectangle
+      const p1 = c2p(goalX, postTop);
+      const p2 = c2p(goalX, postBot);
+      const p3 = c2p(goalX + depth, postBot);
+      const p4 = c2p(goalX + depth, postTop);
+
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 3;
+      ctx.fillStyle = 'rgba(255,255,255,0.08)';
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.lineTo(p3.x, p3.y);
+      ctx.lineTo(p4.x, p4.y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Net crosshatch
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = 0.5;
+      const gx1 = Math.min(p1.x, p4.x), gx2 = Math.max(p1.x, p4.x);
+      const gy1 = p1.y, gy2 = p2.y;
+      const step = scale * 0.4;
+      for (let x = gx1; x <= gx2; x += step) {
+        ctx.beginPath(); ctx.moveTo(x, gy1); ctx.lineTo(x, gy2); ctx.stroke();
+      }
+      for (let y = gy1; y <= gy2; y += step) {
+        ctx.beginPath(); ctx.moveTo(gx1, y); ctx.lineTo(gx2, y); ctx.stroke();
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       DRAWING ELEMENTS
+       ═══════════════════════════════════════════════════ */
+    let drawings = []; // current frame drawings
+
+    function drawElement(el) {
+      if (!el.points || el.points.length < 1) return;
+      const pts = el.points.map(p => c2p(p.x, p.y));
+      ctx.save();
+      ctx.strokeStyle = el.color || '#fff';
+      ctx.fillStyle = el.color || '#fff';
+      ctx.lineWidth = (el.lineWidth || 2);
+
+      // Destaque se for a etapa ativa selecionada
+      const isActionTool = ['move', 'pass', 'dribble', 'shot'].includes(el.tool);
+      let actionIdx = -1;
+      let isStepHighlighted = false;
+
+      if (isActionTool && pts.length >= 2) {
+        const actionDrawings = drawings.filter(d => ['move', 'pass', 'dribble', 'shot'].includes(d.tool) && d.points && d.points.length >= 2);
+        actionIdx = actionDrawings.indexOf(el);
+        if (actionIdx !== -1 && window.TacticalBoard && TacticalBoard.activeStepIndex === actionIdx) {
+          isStepHighlighted = true;
+          ctx.shadowColor = '#F4C542';
+          ctx.shadowBlur = 14;
+          ctx.lineWidth = (el.lineWidth || 2) + 2;
+        }
+      }
+
+      switch (el.tool) {
+        case 'move':
+          ctx.setLineDash([]);
+          drawArrow(pts, el.lineWidth || 2, isStepHighlighted ? '#F4C542' : (el.color || '#fff'), false);
+          break;
+        case 'pass':
+          ctx.setLineDash([10, 6]);
+          drawArrow(pts, el.lineWidth || 2, isStepHighlighted ? '#F4C542' : (el.color || '#fff'), true);
+          break;
+        case 'dribble':
+          drawWavyArrow(pts, el.lineWidth || 2, isStepHighlighted ? '#F4C542' : (el.color || '#fff'));
+          break;
+        case 'shot':
+          drawDoubleArrow(pts, el.lineWidth || 2, isStepHighlighted ? '#F4C542' : (el.color || '#fff'));
+          break;
+        case 'block':
+          drawBlock(pts, el.color || '#fff', el.lineWidth || 2);
+          break;
+        case 'zone':
+          drawZone(pts, el.color || '#fff');
+          break;
+        case 'text':
+          drawTextEl(el);
+          break;
+      }
+
+      // Numeração sequencial da jogada (Passo 1, 2, 3...)
+      if (actionIdx !== -1 && pts.length >= 2) {
+        const stepNum = actionIdx + 1;
+        const badgePos = pts[0];
+        const badgeR = Math.max(10, scale * 0.42);
+
+        ctx.save();
+        ctx.shadowColor = isStepHighlighted ? '#F4C542' : 'rgba(0,0,0,0.6)';
+        ctx.shadowBlur = isStepHighlighted ? 12 : 4;
+        ctx.beginPath();
+        ctx.arc(badgePos.x, badgePos.y, badgeR, 0, Math.PI * 2);
+        ctx.fillStyle = isStepHighlighted ? '#F4C542' : 'rgba(7, 19, 34, 0.95)';
+        ctx.fill();
+        ctx.strokeStyle = isStepHighlighted ? '#071322' : (el.color || '#F4C542');
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.font = `bold ${Math.max(9, badgeR * 0.9)}px 'Oswald', sans-serif`;
+        ctx.fillStyle = isStepHighlighted ? '#071322' : '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(stepNum), badgePos.x, badgePos.y);
+        ctx.restore();
+      }
+
+      // Team label badge at midpoint for arrow types
+      if (['move', 'pass', 'dribble', 'shot'].includes(el.tool) && el.teamLabel && pts.length >= 2) {
+        const mid = getPathMidpoint(pts);
+        drawTeamBadge(mid.x, mid.y, el.teamLabel, el.color);
+      }
+
+      ctx.restore();
+    }
+
+    function getPathMidpoint(pts) {
+      if (pts.length === 2) {
+        return { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
+      }
+      const mid = Math.floor(pts.length / 2);
+      return pts[mid];
+    }
+
+    function drawArrow(pts, lw, color, dashed) {
+      if (pts.length < 2) return;
+      ctx.lineWidth = lw;
+      ctx.strokeStyle = color;
+      if (dashed) ctx.setLineDash([10, 6]);
+      else ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Arrowhead
+      const last = pts[pts.length - 1];
+      const prev = pts[pts.length - 2];
+      drawArrowhead(prev.x, prev.y, last.x, last.y, lw * 4 + 4, color);
+    }
+
+    function drawArrowhead(x1, y1, x2, y2, size, color) {
+      const angle = Math.atan2(y2 - y1, x2 - x1);
+      ctx.fillStyle = color;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - size * Math.cos(angle - Math.PI / 6), y2 - size * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(x2 - size * Math.cos(angle + Math.PI / 6), y2 - size * Math.sin(angle + Math.PI / 6));
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawWavyArrow(pts, lw, color) {
+      if (pts.length < 2) return;
+      ctx.lineWidth = lw;
+      ctx.strokeStyle = color;
+      ctx.setLineDash([]);
+      // Create wavy path along line
+      const p1 = pts[0], p2 = pts[pts.length - 1];
+      const dx = p2.x - p1.x, dy = p2.y - p1.y;
+      const len = Math.hypot(dx, dy);
+      const ux = dx / len, uy = dy / len;
+      const nx = -uy, ny = ux; // normal
+      const amp = Math.min(lw * 3, 8);
+      const freq = 20;
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      const steps = Math.max(30, Math.floor(len / 3));
+      for (let i = 1; i <= steps; i++) {
+        const t = i / steps;
+        const wave = amp * Math.sin(t * Math.PI * 2 * (len / freq));
+        const bx = p1.x + dx * t + nx * wave;
+        const by = p1.y + dy * t + ny * wave;
+        ctx.lineTo(bx, by);
+      }
+      ctx.stroke();
+      drawArrowhead(p1.x + dx * 0.85, p1.y + dy * 0.85, p2.x, p2.y, lw * 4 + 4, color);
+    }
+
+    function drawDoubleArrow(pts, lw, color) {
+      if (pts.length < 2) return;
+      const p1 = pts[0], p2 = pts[pts.length - 1];
+      const dx = p2.x - p1.x, dy = p2.y - p1.y;
+      const len = Math.hypot(dx, dy);
+      if (len === 0) return;
+      const nx = -dy / len * lw * 1.5, ny = dx / len * lw * 1.5;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lw;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(p1.x + nx, p1.y + ny);
+      ctx.lineTo(p2.x + nx, p2.y + ny);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(p1.x - nx, p1.y - ny);
+      ctx.lineTo(p2.x - nx, p2.y - ny);
+      ctx.stroke();
+      drawArrowhead(p1.x, p1.y, p2.x, p2.y, lw * 5 + 5, color);
+    }
+
+    function drawBlock(pts, color, lw) {
+      if (pts.length < 1) return;
+      const p = pts[0];
+      const size = scale * 0.7;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lw + 1;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y - size);
+      ctx.lineTo(p.x, p.y + size);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(p.x - size, p.y + size);
+      ctx.lineTo(p.x + size, p.y + size);
+      ctx.stroke();
+    }
+
+    function drawZone(pts, color) {
+      if (pts.length < 2) return;
+      const p1 = pts[0], p2 = pts[pts.length - 1];
+      const x = Math.min(p1.x, p2.x), y = Math.min(p1.y, p2.y);
+      const w = Math.abs(p2.x - p1.x), h = Math.abs(p2.y - p1.y);
+      ctx.fillStyle = hexToRgba(color, 0.2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 4]);
+      ctx.fillRect(x, y, w, h);
+      ctx.strokeRect(x, y, w, h);
+      ctx.setLineDash([]);
+    }
+
+    function drawTextEl(el) {
+      if (!el.text || !el.points[0]) return;
+      const p = c2p(el.points[0].x, el.points[0].y);
+      ctx.font = `bold ${Math.max(12, scale * 0.8)}px 'Poppins',sans-serif`;
+      ctx.fillStyle = el.color || '#fff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      // shadow
+      ctx.shadowColor = 'rgba(0,0,0,0.8)';
+      ctx.shadowBlur = 4;
+      ctx.fillText(el.text, p.x, p.y);
+      ctx.shadowBlur = 0;
+    }
+
+    function drawTeamBadge(x, y, label, color) {
+      const tw = ctx.measureText(label).width + 8;
+      const th = 14;
+      ctx.fillStyle = hexToRgba(color, 0.85);
+      roundRect(ctx, x - tw / 2, y - th / 2, tw, th, 4);
+      ctx.fill();
+      ctx.font = `bold 9px 'Poppins',sans-serif`;
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, x, y);
+    }
+
+    function hexToRgba(hex, alpha) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.arcTo(x + w, y, x + w, y + r, r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+      ctx.lineTo(x + r, y + h);
+      ctx.arcTo(x, y + h, x, y + h - r, r);
+      ctx.lineTo(x, y + r);
+      ctx.arcTo(x, y, x + r, y, r);
+      ctx.closePath();
+    }
+
+    /* ═══════════════════════════════════════════════════
+       PLAYER DRAWING
+       ═══════════════════════════════════════════════════ */
+    function drawPlayers(plist) {
+      for (const p of plist) {
+        if (p.state === 'suspended') continue; // suspended players shown grayed out off court
+        drawPlayer(p);
+      }
+      // Draw suspended players ghosted
+      for (const p of plist) {
+        if (p.state === 'suspended') {
+          ctx.save();
+          ctx.globalAlpha = 0.4;
+          drawPlayer(p);
+          ctx.restore();
+        }
+      }
+    }
+
+    function drawPlayer(p) {
+      const pos = c2p(p.x, p.y);
+      const r = Math.max(14, scale * 0.65);
+      const baseColor = teamColors[p.team];
+      let fillColor = p.isGK ? darkenColor(baseColor, 0.3) : baseColor;
+
+      if (p.state === 'disqualified') fillColor = '#555';
+
+      // Shadow
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 6;
+
+      // Outer ring (selected)
+      if (state.selectedPlayer && state.selectedPlayer.id === p.id) {
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, r + 4, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(244,197,66,0.4)';
+        ctx.fill();
+      }
+
+      // White border ring
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, r + 2, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+
+      // Player circle
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Label (number or GK)
+      ctx.font = `bold ${Math.max(9, r * 0.75)}px 'Oswald',sans-serif`;
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(p.isGK ? 'GK' : String(p.num), pos.x, pos.y);
+
+      // State badge
+      if (p.state === 'yellow') {
+        ctx.beginPath();
+        ctx.arc(pos.x + r * 0.7, pos.y - r * 0.7, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#facc15';
+        ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+      if (p.state === 'disqualified') {
+        ctx.beginPath();
+        ctx.arc(pos.x + r * 0.7, pos.y - r * 0.7, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ef4444';
+        ctx.fill();
+      }
+
+      // Position label below token
+      ctx.font = `${Math.max(7, r * 0.5)}px 'Poppins',sans-serif`;
+      ctx.fillStyle = 'rgba(255,255,255,0.75)';
+      ctx.fillText(p.label, pos.x, pos.y + r + 8);
+    }
+
+    function darkenColor(hex, amount) {
+      const r = Math.max(0, parseInt(hex.slice(1, 3), 16) - Math.round(255 * amount));
+      const g = Math.max(0, parseInt(hex.slice(3, 5), 16) - Math.round(255 * amount));
+      const b = Math.max(0, parseInt(hex.slice(5, 7), 16) - Math.round(255 * amount));
+      return `rgb(${r},${g},${b})`;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       TEMP DRAWING PREVIEW
+       ═══════════════════════════════════════════════════ */
+    function drawTempPreview() {
+      if (!state.isDrawing || state.tempPoints.length < 1) return;
+      if (['select', 'eraser', 'text'].includes(state.tool)) return;
+
+      const pts = state.tempPoints.map(p => c2p(p.x, p.y));
+      const col = state.drawColor;
+      const lw = state.lineWidth;
+
+      ctx.save();
+      ctx.globalAlpha = 0.7;
+
+      switch (state.tool) {
+        case 'move': drawArrow(pts, lw, col, false); break;
+        case 'pass': drawArrow(pts, lw, col, true); break;
+        case 'dribble': drawWavyArrow(pts, lw, col); break;
+        case 'shot': drawDoubleArrow(pts, lw, col); break;
+        case 'block': drawBlock(pts, col, lw); break;
+        case 'zone': drawZone(pts, col); break;
+      }
+      ctx.restore();
+    }
+
+    /* ═══════════════════════════════════════════════════
+       BALL DRAWING & HIT TESTING
+       ═══════════════════════════════════════════════════ */
+    function drawBall(b) {
+      if (!b || !b.visible) return;
+      const pos = c2p(b.x, b.y);
+      const r = Math.max(9, scale * 0.42);
+
+      ctx.save();
+      // Ball shadow
+      ctx.shadowColor = 'rgba(0,0,0,0.6)';
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetY = 2;
+
+      // Ball body - warm handball gradient
+      const grad = ctx.createRadialGradient(pos.x - r * 0.35, pos.y - r * 0.35, r * 0.1, pos.x, pos.y, r);
+      grad.addColorStop(0, '#fef08a');
+      grad.addColorStop(0.35, '#f59e0b');
+      grad.addColorStop(1, '#b45309');
+
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+
+      // Outer border
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
+
+      // Handball leather pentagon seams
+      ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const angle = (i * Math.PI * 2) / 5 - Math.PI / 2;
+        const px = pos.x + Math.cos(angle) * (r * 0.45);
+        const py = pos.y + Math.sin(angle) * (r * 0.45);
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.stroke();
+
+      for (let i = 0; i < 5; i++) {
+        const angle = (i * Math.PI * 2) / 5 - Math.PI / 2;
+        const px1 = pos.x + Math.cos(angle) * (r * 0.45);
+        const py1 = pos.y + Math.sin(angle) * (r * 0.45);
+        const px2 = pos.x + Math.cos(angle) * r;
+        const py2 = pos.y + Math.sin(angle) * r;
+        ctx.beginPath();
+        ctx.moveTo(px1, py1);
+        ctx.lineTo(px2, py2);
+        ctx.stroke();
+      }
+
+      // Active ring if tool is ball or dragging ball
+      if (state.tool === 'ball' || state.isDraggingBall) {
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, r + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(244,197,66,0.9)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([3, 3]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Label "BOLA" below
+      ctx.font = `bold ${Math.max(7, r * 0.55)}px 'Poppins',sans-serif`;
+      ctx.fillStyle = '#f8fafc';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('BOLA', pos.x, pos.y + r + 7);
+
+      ctx.restore();
+    }
+
+    function hitTestBall(px, py) {
+      const pos = c2p(ball.x, ball.y);
+      const r = Math.max(16, scale * 0.7);
+      return Math.hypot(px - pos.x, py - pos.y) <= r + 4;
+    }
+
+    function drawSimBlockEffect(eff) {
+      if (!eff) return;
+      const p = c2p(eff.x, eff.y);
+      const r = (eff.radius || 20) * scale * 0.05 + 16;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
+      ctx.fill();
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.font = `bold ${Math.max(13, scale * 0.85)}px 'Oswald',sans-serif`;
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = '#000';
+      ctx.shadowBlur = 8;
+      ctx.fillText('🛡️ BLOQUEIO!', p.x, p.y - r - 10);
+      ctx.restore();
+    }
+
+    /* ═══════════════════════════════════════════════════
+       MAIN RENDER
+       ═══════════════════════════════════════════════════ */
+    let animPlayers = null; // during animation
+
+    function render() {
+      drawCourt();
+
+      // Draw saved elements
+      for (const el of drawings) drawElement(el);
+
+      // Temp preview
+      drawTempPreview();
+
+      // Players (animated or current)
+      const plist = animPlayers || players;
+      drawPlayers(plist);
+
+      // Ball
+      drawBall(animBall || (simBall ? simBall : ball));
+
+      // Defensive block effect
+      if (simBlockEffect) {
+        drawSimBlockEffect(simBlockEffect);
+      }
+
+      // Sincroniza e analisa log de eventos táticos em tempo real
+      if (window.TacticalBoard && !isSimulatingPlay) {
+        TacticalBoard.analyzePlay(drawings, plist, simBall || ball);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       AUTO TEAM DETECTION
+       ═══════════════════════════════════════════════════ */
+    function detectTeamFromPoint(px, py) {
+      const r_threshold = Math.max(30, scale * 1.2);
+      let closest = null, minDist = r_threshold;
+      for (const p of players) {
+        const pp = c2p(p.x, p.y);
+        const dist = Math.hypot(px - pp.x, py - pp.y);
+        if (dist < minDist) { minDist = dist; closest = p; }
+      }
+      return closest ? closest.team : state.activeTeam;
+    }
+
+    function setActiveTeam(team) {
+      state.activeTeam = team;
+      const dot = document.getElementById('activeTeamDot');
+      const label = document.getElementById('activeTeamLabel');
+      if (!team) {
+        dot.style.background = '#888';
+        label.style.color = 'var(--muted)';
+        label.textContent = 'Nenhum time ativo — clique próximo a um jogador';
+        return;
+      }
+      const color = teamColors[team];
+      const name = team === 'A' ? (teamNames.A || 'ADESP/CDHU') : (teamNames.B || 'Adversário');
+      const emoji = team === 'A' ? '🔵' : '🔴';
+      dot.style.background = color;
+      label.style.color = color;
+      label.textContent = `${emoji} ${name} executando...`;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       TOOL SELECTION
+       ═══════════════════════════════════════════════════ */
+    function setTool(t) {
+      state.tool = t;
+      document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+      const btn = document.getElementById('tool-' + t);
+      if (btn) btn.classList.add('active');
+      canvas.style.cursor = t === 'select' ? 'default' : (t === 'eraser' ? 'cell' : (t === 'ball' ? 'grab' : 'crosshair'));
+    }
+
+    /* ═══════════════════════════════════════════════════
+       HIT TESTING
+       ═══════════════════════════════════════════════════ */
+    function hitTestPlayer(px, py) {
+      const r = Math.max(14, scale * 0.65) + 5;
+      for (let i = players.length - 1; i >= 0; i--) {
+        const p = players[i];
+        const pp = c2p(p.x, p.y);
+        if (Math.hypot(px - pp.x, py - pp.y) <= r + 2) return p;
+      }
+      return null;
+    }
+
+    function hitTestDrawing(px, py) {
+      const thresh = 10;
+      for (let i = drawings.length - 1; i >= 0; i--) {
+        const el = drawings[i];
+        if (!el.points) continue;
+        if (el.tool === 'text') {
+          const p = c2p(el.points[0].x, el.points[0].y);
+          if (Math.hypot(px - p.x, py - p.y) < 20) return i;
+        } else {
+          const pts = el.points.map(p => c2p(p.x, p.y));
+          for (let j = 0; j < pts.length - 1; j++) {
+            if (distToSegment(px, py, pts[j].x, pts[j].y, pts[j + 1].x, pts[j + 1].y) < thresh) return i;
+          }
+          if (pts.length === 1 && Math.hypot(px - pts[0].x, py - pts[0].y) < thresh * 2) return i;
+        }
+      }
+      return -1;
+    }
+
+    function distToSegment(px, py, ax, ay, bx, by) {
+      const dx = bx - ax, dy = by - ay;
+      const len2 = dx * dx + dy * dy;
+      if (len2 === 0) return Math.hypot(px - ax, py - ay);
+      const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / len2));
+      return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+    }
+
+    /* ═══════════════════════════════════════════════════
+       MOUSE / TOUCH EVENTS
+       ═══════════════════════════════════════════════════ */
+    let dragPlayer = null;
+    let dragOffsetM = { x: 0, y: 0 };
+    let dragGhost = null;
+
+    function getEventPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      if (e.touches) {
+        const t = e.touches[0];
+        return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+      }
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+
+    canvas.addEventListener('mousedown', onPointerDown);
+    canvas.addEventListener('mousemove', onPointerMove);
+    canvas.addEventListener('mouseup', onPointerUp);
+    canvas.addEventListener('touchstart', onPointerDown, { passive: false });
+    canvas.addEventListener('touchmove', onPointerMove, { passive: false });
+    canvas.addEventListener('touchend', onPointerUp, { passive: false });
+    canvas.addEventListener('contextmenu', onRightClick);
+
+    function onPointerDown(e) {
+      e.preventDefault();
+      const pos = getEventPos(e);
+      const { x: px, y: py } = pos;
+      const mp = p2c(px, py);
+
+      if (state.tool === 'ball') {
+        pushHistory();
+        ball.x = Math.max(0.5, Math.min(COURT_W - 0.5, mp.x));
+        ball.y = Math.max(0.5, Math.min(COURT_H - 0.5, mp.y));
+        const hitP = hitTestPlayer(px, py);
+        ball.heldBy = hitP ? hitP.id : null;
+        saveCurrentFrame();
+        render();
+        return;
+      }
+
+      if (state.tool === 'select') {
+        if (hitTestBall(px, py)) {
+          state.isDraggingBall = true;
+          dragOffsetM = { x: mp.x - ball.x, y: mp.y - ball.y };
+          state.selectedPlayer = null;
+          render();
+          return;
+        }
+        const hit = hitTestPlayer(px, py);
+        if (hit) {
+          dragPlayer = hit;
+          dragGhost = { x: hit.x, y: hit.y };
+          dragOffsetM = { x: mp.x - hit.x, y: mp.y - hit.y };
+          state.isDragging = true;
+          state.selectedPlayer = hit;
+          setActiveTeam(hit.team);
+        } else {
+          state.selectedPlayer = null;
+          // Checa se clicou em um desenho tático para destacar no log de eventos!
+          const drawingIdx = hitTestDrawing(px, py);
+          if (drawingIdx >= 0 && window.TacticalBoard) {
+            const actionDrawings = drawings.filter(d => ['move', 'pass', 'dribble', 'shot'].includes(d.tool) && d.points && d.points.length >= 2);
+            const actionIdx = actionDrawings.indexOf(drawings[drawingIdx]);
+            if (actionIdx !== -1) {
+              TacticalBoard.highlightStep(actionIdx);
+              TacticalBoard.switchSideTab('log');
+            }
+          } else if (window.TacticalBoard && TacticalBoard.activeStepIndex !== null) {
+            TacticalBoard.highlightStep(null);
+          }
+        }
+        render();
+        return;
+      }
+
+      if (state.tool === 'eraser') {
+        const idx = hitTestDrawing(px, py);
+        if (idx >= 0) {
+          pushHistory();
+          drawings.splice(idx, 1);
+          saveCurrentFrame();
+          render();
+        } else {
+          const hit = hitTestPlayer(px, py);
+          // Don't delete players with eraser
+        }
+        return;
+      }
+
+      if (state.tool === 'text') {
+        state.textPending = { x: mp.x, y: mp.y };
+        showTextInput();
+        return;
+      }
+
+      // Drawing tools
+      const detectedTeam = detectTeamFromPoint(px, py);
+      setActiveTeam(detectedTeam);
+      state.isDrawing = true;
+      state.tempPoints = [{ x: mp.x, y: mp.y }];
+    }
+
+    function onPointerMove(e) {
+      e.preventDefault();
+      const pos = getEventPos(e);
+      const { x: px, y: py } = pos;
+      const mp = p2c(px, py);
+
+      if (state.isDraggingBall) {
+        ball.x = Math.max(0.5, Math.min(COURT_W - 0.5, mp.x - dragOffsetM.x));
+        ball.y = Math.max(0.5, Math.min(COURT_H - 0.5, mp.y - dragOffsetM.y));
+        render();
+        return;
+      }
+
+      if (state.isDragging && dragPlayer) {
+        // Clamp to court bounds
+        const nx = Math.max(0.5, Math.min(COURT_W - 0.5, mp.x - dragOffsetM.x));
+        const ny = Math.max(0.5, Math.min(COURT_H - 0.5, mp.y - dragOffsetM.y));
+        dragPlayer.x = nx;
+        dragPlayer.y = ny;
+        if (ball.heldBy === dragPlayer.id) {
+          ball.x = nx;
+          ball.y = ny;
+        }
+        render();
+        return;
+      }
+
+      if (state.isDrawing && state.tempPoints.length > 0) {
+        const last = state.tempPoints[state.tempPoints.length - 1];
+        // For freehand tools keep multiple points, for simple arrows just two
+        if (['move', 'pass', 'shot', 'block', 'zone'].includes(state.tool)) {
+          state.tempPoints = [state.tempPoints[0], { x: mp.x, y: mp.y }];
+        } else if (state.tool === 'dribble') {
+          state.tempPoints = [state.tempPoints[0], { x: mp.x, y: mp.y }];
+        }
+        render();
+      }
+    }
+
+    function onPointerUp(e) {
+      e.preventDefault();
+
+      if (state.isDraggingBall) {
+        state.isDraggingBall = false;
+        pushHistory();
+        const pos = getEventPos(e);
+        const hitP = hitTestPlayer(pos.x, pos.y);
+        if (hitP) {
+          ball.heldBy = hitP.id;
+          ball.x = hitP.x;
+          ball.y = hitP.y;
+        } else {
+          ball.heldBy = null;
+        }
+        saveCurrentFrame();
+        render();
+        return;
+      }
+
+      if (state.isDragging) {
+        state.isDragging = false;
+        if (dragPlayer) {
+          if (ball.heldBy === dragPlayer.id) {
+            ball.x = dragPlayer.x;
+            ball.y = dragPlayer.y;
+          }
+          pushHistory();
+          dragGhost = null;
+          dragPlayer = null;
+          saveCurrentFrame();
+          render();
+        }
+        return;
+      }
+
+      if (state.isDrawing && state.tempPoints.length >= 2) {
+        state.isDrawing = false;
+        const col = state.drawColor;
+        const teamId = state.activeTeam;
+        const teamLabel = teamId ? (teamId === 'A' ? (teamNames.A || 'ADESP') : (teamNames.B || 'ADV')) : null;
+
+        pushHistory();
+        drawings.push({
+          id: Date.now(),
+          tool: state.tool,
+          points: [...state.tempPoints],
+          color: col,
+          teamId,
+          teamLabel,
+          lineWidth: state.lineWidth,
+        });
+        state.tempPoints = [];
+        saveCurrentFrame();
+        render();
+        return;
+      }
+
+      state.isDrawing = false;
+      state.tempPoints = [];
+    }
+
+    function onRightClick(e) {
+      e.preventDefault();
+      const pos = getEventPos(e);
+      const hit = hitTestPlayer(pos.x, pos.y);
+      if (hit) {
+        contextPlayer = hit;
+        showPlayerPopup(e.clientX, e.clientY, hit);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       PLAYER CONTEXT POPUP
+       ═══════════════════════════════════════════════════ */
+    function showPlayerPopup(x, y, p) {
+      const popup = document.getElementById('playerPopup');
+      document.getElementById('ppTitle').textContent = `#${p.num} ${p.label} (Time ${p.team})`;
+      popup.style.left = Math.min(x, window.innerWidth - 180) + 'px';
+      popup.style.top = Math.min(y, window.innerHeight - 180) + 'px';
+      popup.classList.add('show');
+    }
+
+    function closePlayerPopup() {
+      document.getElementById('playerPopup').classList.remove('show');
+      contextPlayer = null;
+    }
+
+    function setPlayerState(st) {
+      if (!contextPlayer) return;
+      pushHistory();
+      contextPlayer.state = st;
+      closePlayerPopup();
+      saveCurrentFrame();
+      render();
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#playerPopup')) closePlayerPopup();
+    });
+
+    /* ═══════════════════════════════════════════════════
+       TEXT TOOL
+       ═══════════════════════════════════════════════════ */
+    function showTextInput() {
+      const ov = document.getElementById('textInputOverlay');
+      document.getElementById('textInputField').value = '';
+      ov.style.display = 'block';
+      setTimeout(() => document.getElementById('textInputField').focus(), 50);
+    }
+
+    function confirmTextInput() {
+      const val = document.getElementById('textInputField').value.trim();
+      if (val && state.textPending) {
+        pushHistory();
+        drawings.push({
+          id: Date.now(),
+          tool: 'text',
+          points: [{ x: state.textPending.x, y: state.textPending.y }],
+          color: state.drawColor,
+          text: val,
+          lineWidth: state.lineWidth,
+        });
+        saveCurrentFrame();
+        render();
+      }
+      document.getElementById('textInputOverlay').style.display = 'none';
+      state.textPending = null;
+    }
+
+    function cancelTextInput() {
+      document.getElementById('textInputOverlay').style.display = 'none';
+      state.textPending = null;
+    }
+
+    document.getElementById('textInputField').addEventListener('keydown', e => {
+      if (e.key === 'Enter') confirmTextInput();
+      if (e.key === 'Escape') cancelTextInput();
+    });
+
+    /* ═══════════════════════════════════════════════════
+       VIEW MODES
+       ═══════════════════════════════════════════════════ */
+    function setView(v) {
+      state.view = v;
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view-btn').forEach(b => {
+        if (b.textContent.toLowerCase().includes(v === 'full' ? 'completa' : v === 'attack' ? 'ataque' : 'defesa'))
+          b.classList.add('active');
+      });
+      resizeCanvas();
+    }
+
+    /* ═══════════════════════════════════════════════════
+       HISTORY (UNDO/REDO)
+       ═══════════════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════════
+       TOAST NOTIFICATIONS
+       ═══════════════════════════════════════════════════ */
+    function showPlayToast(msg, type = 'info', icon = '▶', duration = 3000) {
+      const toast = document.getElementById('playToast');
+      const txt = document.getElementById('playToastText');
+      const ic = document.getElementById('playToastIcon');
+      if (!toast) return;
+      toast.className = 'play-toast show ' + type;
+      if (txt) txt.textContent = msg;
+      if (ic) ic.textContent = icon;
+      if (window._toastTimeout) clearTimeout(window._toastTimeout);
+      window._toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, duration);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       GOALIE ↔ PLAYER #7 (GOLEIRO-LINHA)
+       ═══════════════════════════════════════════════════ */
+    function toggleGoalieLinha() {
+      pushHistory();
+      const gk = players.find(p => p.id === 'a_gk');
+      if (!gk) return;
+
+      if (isGK7Active) {
+        // Return to goalkeeper
+        gk.num = 1;
+        gk.label = 'GK';
+        gk.isGK = true;
+        gk.x = 2;
+        gk.y = 10;
+        isGK7Active = false;
+        showPlayToast('Goleiro (GK) retornou à meta defensiva.', 'info', '🧤');
+      } else {
+        // Substitute with line player #7
+        gk.num = 7;
+        gk.label = '7º';
+        gk.isGK = false;
+        gk.x = 28;
+        gk.y = 8;
+        isGK7Active = true;
+        showPlayToast('Goleiro substituído pelo Jogador de Linha nº 7 (7x6)!', 'info', '🔁');
+      }
+      updateGK7ButtonUI();
+      saveCurrentFrame();
+      render();
+    }
+
+    function updateGK7ButtonUI() {
+      const btnTop = document.getElementById('btnGK7View');
+      const txtTop = document.getElementById('gk7ViewText');
+      const btnSide = document.getElementById('btnToggleGK7');
+      if (btnTop && txtTop) {
+        btnTop.classList.toggle('active', isGK7Active);
+        txtTop.textContent = isGK7Active ? 'Nº 7 Ativo (7x6)' : 'GK ↔ Nº 7';
+      }
+      if (btnSide) {
+        btnSide.innerHTML = isGK7Active ?
+          '<i class="fas fa-undo"></i> 🧤 Voltar para GK' :
+          '<i class="fas fa-exchange-alt"></i> 🔁 Substituir GK por Nº 7';
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       DEFENSIVE BLOCK SIMULATION TOGGLE
+       ═══════════════════════════════════════════════════ */
+    function toggleDefenseBlock() {
+      isDefenseBlocked = !isDefenseBlocked;
+      updateBlockButtonUI();
+      if (isDefenseBlocked) {
+        showPlayToast('Bloqueio ATIVADO: na jogada, a defesa conseguirá o bloqueio!', 'blocked', '🛡️');
+      } else {
+        showPlayToast('Bloqueio DESATIVADO: na jogada, o ataque converterá o gol!', 'goal', '⚽');
+      }
+    }
+
+    function updateBlockButtonUI() {
+      const btnTop = document.getElementById('btnBlockView');
+      const txtTop = document.getElementById('blockViewText');
+      const txtSide = document.getElementById('blockStatusSide');
+      if (btnTop && txtTop) {
+        btnTop.classList.toggle('active', isDefenseBlocked);
+        txtTop.textContent = isDefenseBlocked ? 'SIM (Bloqueia)' : 'OFF';
+      }
+      if (txtSide) {
+        txtSide.textContent = isDefenseBlocked ? 'SIM' : 'NÃO';
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       BALL RESET & HELPERS
+       ═══════════════════════════════════════════════════ */
+    function resetBallPosition() {
+      pushHistory();
+      const ac = players.find(p => p.id === 'a_ac');
+      if (ac) {
+        ball.x = ac.x;
+        ball.y = ac.y;
+        ball.heldBy = 'a_ac';
+      } else {
+        ball.x = 26;
+        ball.y = 10;
+        ball.heldBy = null;
+      }
+      showPlayToast('Bola posicionada com o Armador Central (nº 3)!', 'info', '⚽');
+      saveCurrentFrame();
+      render();
+    }
+
+    /* ═══════════════════════════════════════════════════
+       DIRECT SHOT GENERATOR
+       ═══════════════════════════════════════════════════ */
+    function shootToGoal() {
+      pushHistory();
+      // Find who currently holds the ball or the closest attacker
+      let shooter = players.find(p => p.id === ball.heldBy);
+      if (!shooter) {
+        const attackers = players.filter(p => p.team === 'A');
+        let maxDist = -1;
+        for (const a of attackers) {
+          if (a.x > maxDist) { maxDist = a.x; shooter = a; }
+        }
+      }
+      if (!shooter) shooter = players.find(p => p.id === 'a_ac');
+
+      const startX = shooter ? shooter.x : ball.x;
+      const startY = shooter ? shooter.y : ball.y;
+
+      // Aim at goal mouth: target y between 9.2 and 10.8
+      const targetY = startY < 10 ? 9.4 : (startY > 10 ? 10.6 : 10.0);
+      const targetX = 40.0;
+
+      drawings.push({
+        id: Date.now(),
+        tool: 'shot',
+        points: [{ x: startX, y: startY }, { x: targetX, y: targetY }],
+        color: '#facc15',
+        teamId: 'A',
+        teamLabel: teamNames.A || 'ADESP',
+        lineWidth: 3,
+      });
+
+      ball.x = startX;
+      ball.y = startY;
+      ball.heldBy = shooter ? shooter.id : null;
+
+      saveCurrentFrame();
+      render();
+      showPlayToast('Seta de arremesso traçada para o gol! Clique em Play para ver a jogada.', 'goal', '🎯', 3500);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       SEQUENTIAL PLAY EXECUTION ENGINE
+       Executes actions in the exact order drawn
+       ═══════════════════════════════════════════════════ */
+    function executePlay() {
+      if (isSimulatingPlay) {
+        stopPlaySimulation();
+        return;
+      }
+
+      // Jogada carregada do Playbook: executa todos os quadros em sequência
+      if (frames.isBook && frames.length > 1) {
+        if (!isPlaying && currentFrame === frames.length - 1) loadFrame(0);
+        togglePlay();
+        return;
+      }
+
+      // Find all actionable tactical drawings in chronological order
+      const actions = drawings.filter(d =>
+        ['move', 'dribble', 'pass', 'shot'].includes(d.tool) && d.points && d.points.length >= 2
+      );
+
+      // If no play drawings, fall back to timeline frames if available
+      if (actions.length === 0) {
+        if (frames.length > 1) {
+          togglePlay();
+          return;
+        }
+        showPlayToast('Desenhe setas de Movimento, Passe ou use "Chutar a Gol" para ver a jogada!', 'info', '💡', 4000);
+        return;
+      }
+
+      isSimulatingPlay = true;
+      document.querySelectorAll('.action-btn-play').forEach(b => {
+        b.innerHTML = '<i class="fas fa-stop"></i> Parar';
+      });
+
+      // Snapshot initial states
+      const startPlayers = deepCopy(players);
+      let curBall = Object.assign({}, ball);
+      if (!curBall.heldBy) {
+        let nearestP = null, minD = 3.5;
+        for (const p of startPlayers) {
+          const d = Math.hypot(p.x - curBall.x, p.y - curBall.y);
+          if (d < minD) { minD = d; nearestP = p; }
+        }
+        if (nearestP) curBall.heldBy = nearestP.id;
+      }
+
+      // Pre-calculate sequential keyframes for each action
+      let currentWorkingPlayers = deepCopy(startPlayers);
+      let currentWorkingBall = Object.assign({}, curBall);
+
+      const steps = [];
+
+      for (let k = 0; k < actions.length; k++) {
+        const act = actions[k];
+        const fromP = deepCopy(currentWorkingPlayers);
+        const toP = deepCopy(currentWorkingPlayers);
+        const fromB = Object.assign({}, currentWorkingBall);
+        let toB = Object.assign({}, currentWorkingBall);
+        let desc = '';
+        let isShot = act.tool === 'shot';
+
+        // Check if an arrow drawn with 'pass' or 'move' points into the right goal
+        const endPt = act.points[act.points.length - 1];
+        if (endPt.x >= 37 && endPt.y >= 7 && endPt.y <= 13) {
+          isShot = true;
+        }
+
+        if (isShot) {
+          const startPt = act.points[0];
+          let dx = endPt.x - startPt.x;
+          let dy = endPt.y - startPt.y;
+          if (dx <= 0) dx = 1;
+          let goalY = startPt.y + dy * ((40 - startPt.x) / dx);
+          goalY = Math.max(8.8, Math.min(11.2, goalY));
+
+          // Find shooter (ball carrier or closest to arrow start)
+          let shooter = fromP.find(p => p.id === currentWorkingBall.heldBy);
+          if (!shooter) {
+            shooter = fromP.reduce((prev, curr) =>
+              Math.hypot(curr.x - startPt.x, curr.y - startPt.y) < Math.hypot(prev.x - startPt.x, prev.y - startPt.y) ? curr : prev,
+              fromP[0]
+            );
+          }
+
+          toB = {
+            x: 40.0,
+            y: goalY,
+            visible: true,
+            heldBy: null
+          };
+
+          desc = `🚀 Passo ${k + 1}/${actions.length}: Arremesso de #${shooter.num} (${shooter.label}) ao gol!`;
+
+          steps.push({
+            type: 'shot',
+            fromPlayers: fromP,
+            toPlayers: toP,
+            fromBall: fromB,
+            toBall: toB,
+            shotStart: { x: shooter ? shooter.x : fromB.x, y: shooter ? shooter.y : fromB.y },
+            shotTarget: { x: 40.0, y: goalY },
+            desc
+          });
+
+          currentWorkingBall = Object.assign({}, toB);
+        } else if (act.tool === 'pass') {
+          const startPt = act.points[0];
+
+          let passer = fromP.find(p => p.id === currentWorkingBall.heldBy);
+          if (!passer) {
+            passer = fromP.reduce((prev, curr) =>
+              Math.hypot(curr.x - startPt.x, curr.y - startPt.y) < Math.hypot(prev.x - startPt.x, prev.y - startPt.y) ? curr : prev,
+              fromP[0]
+            );
+          }
+
+          let receiver = fromP.reduce((prev, curr) =>
+            Math.hypot(curr.x - endPt.x, curr.y - endPt.y) < Math.hypot(prev.x - endPt.x, prev.y - endPt.y) ? curr : prev,
+            fromP[0]
+          );
+
+          toB = {
+            x: receiver ? receiver.x : endPt.x,
+            y: receiver ? receiver.y : endPt.y,
+            visible: true,
+            heldBy: receiver ? receiver.id : null
+          };
+
+          desc = `🏐 Passo ${k + 1}/${actions.length}: Passe de #${passer.num} (${passer.label}) para #${receiver.num} (${receiver.label})`;
+
+          steps.push({
+            type: 'pass',
+            fromPlayers: fromP,
+            toPlayers: toP,
+            fromBall: fromB,
+            toBall: toB,
+            desc
+          });
+
+          currentWorkingBall = Object.assign({}, toB);
+        } else {
+          // Movement or Dribble
+          const startPt = act.points[0];
+
+          const movingPlayer = fromP.reduce((prev, curr) =>
+            Math.hypot(curr.x - startPt.x, curr.y - startPt.y) < Math.hypot(prev.x - startPt.x, prev.y - startPt.y) ? curr : prev,
+            fromP[0]
+          );
+
+          const targetP = toP.find(p => p.id === movingPlayer.id);
+          if (targetP) {
+            targetP.x = endPt.x;
+            targetP.y = endPt.y;
+          }
+
+          const carriesBall = currentWorkingBall.heldBy === movingPlayer.id;
+          if (carriesBall) {
+            toB = {
+              x: endPt.x,
+              y: endPt.y,
+              visible: true,
+              heldBy: movingPlayer.id
+            };
+            currentWorkingBall = Object.assign({}, toB);
+          }
+
+          const verb = act.tool === 'dribble' ? 'Drible' : 'Movimento';
+          desc = `🏃 Passo ${k + 1}/${actions.length}: ${verb} de #${movingPlayer.num} (${movingPlayer.label})${carriesBall ? ' com a bola' : ''}`;
+
+          steps.push({
+            type: act.tool,
+            fromPlayers: fromP,
+            toPlayers: toP,
+            fromBall: fromB,
+            toBall: toB,
+            movingPlayerId: movingPlayer.id,
+            carriesBall,
+            desc
+          });
+
+          currentWorkingPlayers = deepCopy(toP);
+        }
+      }
+
+      // Duration scales comfortably per step
+      const stepDuration = 1350; // ms per step
+      const totalDuration = steps.length * stepDuration;
+      const startTime = performance.now();
+      let lastToastStep = -1;
+
+      function animLoop(now) {
+        if (!isSimulatingPlay) return;
+        const elapsed = Math.max(0, now - startTime);
+        const globalProgress = Math.min(1, elapsed / totalDuration);
+
+        const stepIndex = Math.max(0, Math.min(steps.length - 1, Math.floor(globalProgress * steps.length)));
+        const stepObj = steps[stepIndex];
+        if (!stepObj) { stopPlaySimulation(); return; }
+
+        if (stepIndex !== lastToastStep) {
+          lastToastStep = stepIndex;
+          showPlayToast(stepObj.desc, 'info', '▶', stepDuration);
+          if (window.TacticalBoard) {
+            TacticalBoard.highlightStep(stepIndex);
+          }
+        }
+
+        const stepStartProgress = stepIndex / steps.length;
+        const stepEndProgress = (stepIndex + 1) / steps.length;
+        const localT = Math.min(1, Math.max(0, (globalProgress - stepStartProgress) / (stepEndProgress - stepStartProgress)));
+        const eased = localT < 0.5 ? 2 * localT * localT : -1 + (4 - 2 * localT) * localT;
+
+        // Interpolate players
+        const currentP = stepObj.fromPlayers.map(fp => {
+          const tp = stepObj.toPlayers.find(p => p.id === fp.id);
+          if (!tp) return Object.assign({}, fp);
+          return Object.assign({}, fp, {
+            x: fp.x + (tp.x - fp.x) * eased,
+            y: fp.y + (tp.y - fp.y) * eased
+          });
+        });
+
+        // Interpolate ball
+        let curBx, curBy;
+
+        if (stepObj.type === 'shot') {
+          const sX = stepObj.shotStart.x;
+          const sY = stepObj.shotStart.y;
+          const tX = stepObj.shotTarget.x;
+          const tY = stepObj.shotTarget.y;
+
+          if (isDefenseBlocked) {
+            if (localT < 0.62) {
+              curBx = sX + (tX - sX) * (localT / 0.62) * 0.62;
+              curBy = sY + (tY - sY) * (localT / 0.62) * 0.62;
+            } else {
+              const impactX = sX + (tX - sX) * 0.62;
+              const impactY = sY + (tY - sY) * 0.62;
+              const tRebound = (localT - 0.62) / 0.38;
+              curBx = impactX - tRebound * 1.8;
+              curBy = impactY + tRebound * 1.5;
+
+              const d3 = currentP.find(p => p.id === 'b_d3');
+              const d4 = currentP.find(p => p.id === 'b_d4');
+              if (d3) { d3.x = impactX + 0.9; d3.y = impactY - 0.45; }
+              if (d4) { d4.x = impactX + 0.9; d4.y = impactY + 0.45; }
+
+              simBlockEffect = { x: impactX, y: impactY, radius: 24 };
+            }
+          } else {
+            curBx = sX + (tX - sX) * eased;
+            curBy = sY + (tY - sY) * eased;
+          }
+        } else {
+          curBx = stepObj.fromBall.x + (stepObj.toBall.x - stepObj.fromBall.x) * eased;
+          curBy = stepObj.fromBall.y + (stepObj.toBall.y - stepObj.fromBall.y) * eased;
+        }
+
+        simBall = { x: curBx, y: curBy, visible: true };
+        animPlayers = currentP;
+        render();
+
+        if (globalProgress < 1) {
+          simRafId = requestAnimationFrame(animLoop);
+        } else {
+          stopPlaySimulation();
+          const hasShot = steps.some(s => s.type === 'shot');
+          if (hasShot) {
+            if (isDefenseBlocked) {
+              showPlayToast('🛡️ DEFESA SUCEDIDA! O bloqueio impediu o gol!', 'blocked', '🛡️', 4500);
+            } else {
+              showPlayToast('⚽ GOL! Arremesso convertido no ângulo!', 'goal', '⚽', 4500);
+            }
+          } else {
+            showPlayToast('✅ Jogada concluída com sucesso!', 'goal', '🏆', 3500);
+          }
+        }
+      }
+
+      simRafId = requestAnimationFrame(animLoop);
+    }
+
+    function stopPlaySimulation() {
+      isSimulatingPlay = false;
+      if (simRafId) { cancelAnimationFrame(simRafId); simRafId = null; }
+      document.querySelectorAll('.action-btn-play').forEach(b => {
+        b.innerHTML = '<i class="fas fa-play"></i> Play Jogada';
+      });
+      animPlayers = null;
+      simBall = null;
+      simBlockEffect = null;
+      if (window.TacticalBoard) {
+        TacticalBoard.highlightStep(null);
+      }
+      render();
+    }
+
+    /* ═══════════════════════════════════════════════════
+       HISTORY (UNDO/REDO)
+       ═══════════════════════════════════════════════════ */
+    function pushHistory() {
+      state.history.push({
+        players: deepCopy(players),
+        drawings: deepCopy(drawings),
+        ball: Object.assign({}, ball),
+        isGK7Active
+      });
+      if (state.history.length > 50) state.history.shift();
+      state.redoStack = [];
+    }
+
+    function undoAction() {
+      if (state.history.length === 0) return;
+      state.redoStack.push({
+        players: deepCopy(players),
+        drawings: deepCopy(drawings),
+        ball: Object.assign({}, ball),
+        isGK7Active
+      });
+      const snap = state.history.pop();
+      players = snap.players;
+      drawings = snap.drawings;
+      if (snap.ball) ball = Object.assign({}, snap.ball);
+      if (snap.isGK7Active !== undefined) isGK7Active = snap.isGK7Active;
+      updateGK7ButtonUI();
+      saveCurrentFrame();
+      render();
+    }
+
+    function redoAction() {
+      if (state.redoStack.length === 0) return;
+      state.history.push({
+        players: deepCopy(players),
+        drawings: deepCopy(drawings),
+        ball: Object.assign({}, ball),
+        isGK7Active
+      });
+      const snap = state.redoStack.pop();
+      players = snap.players;
+      drawings = snap.drawings;
+      if (snap.ball) ball = Object.assign({}, snap.ball);
+      if (snap.isGK7Active !== undefined) isGK7Active = snap.isGK7Active;
+      updateGK7ButtonUI();
+      saveCurrentFrame();
+      render();
+    }
+
+    function deepCopy(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    /* ═══════════════════════════════════════════════════
+       CLEAR & RESET
+       ═══════════════════════════════════════════════════ */
+    function clearAllDrawings() {
+      pushHistory();
+      drawings = [];
+      saveCurrentFrame();
+      render();
+    }
+
+    function resetPlayers() {
+      pushHistory();
+      players = defaultPlayers();
+      drawings = [];
+      ball = { x: 26, y: 10, visible: true, heldBy: 'a_ac' };
+      isGK7Active = false;
+      isDefenseBlocked = false;
+      updateGK7ButtonUI();
+      updateBlockButtonUI();
+      saveCurrentFrame();
+      render();
+    }
+
+    /* ═══════════════════════════════════════════════════
+       TEAM COLOR CHANGE
+       ═══════════════════════════════════════════════════ */
+    function changeTeamColor(team, color) {
+      teamColors[team] = color;
+      render();
+    }
+
+    /* ═══════════════════════════════════════════════════
+       DEFENSIVE SYSTEM PRESETS
+       ═══════════════════════════════════════════════════ */
+    const DEF_SYSTEMS = {
+      '6-0': [
+        { id: 'b_gk', x: 38, y: 10 },
+        { id: 'b_d1', x: 36.5, y: 3.5 },
+        { id: 'b_d2', x: 34.8, y: 6.2 },
+        { id: 'b_d3', x: 34.0, y: 8.8 },
+        { id: 'b_d4', x: 34.0, y: 11.2 },
+        { id: 'b_d5', x: 34.8, y: 13.8 },
+        { id: 'b_d6', x: 36.5, y: 16.5 },
+      ],
+      '5-1': [
+        { id: 'b_gk', x: 38, y: 10 },
+        { id: 'b_d1', x: 36.5, y: 3.5 },
+        { id: 'b_d2', x: 34.8, y: 7.0 },
+        { id: 'b_d3', x: 34.0, y: 10.0 },
+        { id: 'b_d4', x: 34.8, y: 13.0 },
+        { id: 'b_d5', x: 36.5, y: 16.5 },
+        { id: 'b_d6', x: 29.5, y: 10.0 }, // advanced
+      ],
+      '4-2': [
+        { id: 'b_gk', x: 38, y: 10 },
+        { id: 'b_d1', x: 36.5, y: 4.0 },
+        { id: 'b_d2', x: 34.0, y: 8.5 },
+        { id: 'b_d3', x: 34.0, y: 11.5 },
+        { id: 'b_d4', x: 36.5, y: 16.0 },
+        { id: 'b_d5', x: 30.0, y: 7.0 },
+        { id: 'b_d6', x: 30.0, y: 13.0 },
+      ],
+      '3-2-1': [
+        { id: 'b_gk', x: 38, y: 10 },
+        { id: 'b_d1', x: 36.5, y: 5.0 },
+        { id: 'b_d2', x: 34.0, y: 10.0 },
+        { id: 'b_d3', x: 36.5, y: 15.0 },
+        { id: 'b_d4', x: 30.5, y: 7.5 },
+        { id: 'b_d5', x: 30.5, y: 12.5 },
+        { id: 'b_d6', x: 26.0, y: 10.0 },
+      ],
+      '3-3': [
+        { id: 'b_gk', x: 38, y: 10 },
+        { id: 'b_d1', x: 36.5, y: 5.0 },
+        { id: 'b_d2', x: 34.0, y: 10.0 },
+        { id: 'b_d3', x: 36.5, y: 15.0 },
+        { id: 'b_d4', x: 29.0, y: 5.0 },
+        { id: 'b_d5', x: 29.0, y: 10.0 },
+        { id: 'b_d6', x: 29.0, y: 15.0 },
+      ],
+    };
+
+    function applyDefSystem(name) {
+      const sys = DEF_SYSTEMS[name];
+      if (!sys) return;
+      pushHistory();
+      for (const pos of sys) {
+        const p = players.find(pl => pl.id === pos.id);
+        if (p) { p.x = pos.x; p.y = pos.y; }
+      }
+      saveCurrentFrame();
+      render();
+    }
+
+    /* ═══════════════════════════════════════════════════
+       OFFENSIVE SYSTEM PRESETS
+       ═══════════════════════════════════════════════════ */
+    const ATK_SYSTEMS = {
+      '3-3': [
+        { id: 'a_gk', x: 2, y: 10 },
+        { id: 'a_pe', x: 19, y: 2 },
+        { id: 'a_ae', x: 24, y: 6 },
+        { id: 'a_ac', x: 26, y: 10 },
+        { id: 'a_ad', x: 24, y: 14 },
+        { id: 'a_pd', x: 19, y: 18 },
+        { id: 'a_pv', x: 31, y: 10 },
+      ],
+      '2-4': [
+        { id: 'a_gk', x: 2, y: 10 },
+        { id: 'a_pe', x: 19, y: 2 },
+        { id: 'a_ae', x: 25, y: 7 },
+        { id: 'a_ac', x: 28, y: 14 },
+        { id: 'a_ad', x: 31, y: 7 },
+        { id: 'a_pd', x: 19, y: 18 },
+        { id: 'a_pv', x: 31, y: 13 },
+      ],
+      'contra': [
+        { id: 'a_gk', x: 2, y: 10 },
+        { id: 'a_pe', x: 15, y: 2 },
+        { id: 'a_ae', x: 25, y: 4 },
+        { id: 'a_ac', x: 28, y: 10 },
+        { id: 'a_ad', x: 25, y: 16 },
+        { id: 'a_pd', x: 15, y: 18 },
+        { id: 'a_pv', x: 33, y: 10 },
+      ],
+      '7v6': [
+        { id: 'a_gk', x: 28, y: 8 }, // 7th line player
+        { id: 'a_pe', x: 18, y: 2 },
+        { id: 'a_ae', x: 25, y: 5 },
+        { id: 'a_ac', x: 28, y: 12 },
+        { id: 'a_ad', x: 25, y: 15 },
+        { id: 'a_pd', x: 18, y: 18 },
+        { id: 'a_pv', x: 32, y: 10 },
+      ],
+    };
+
+    function applyAtkSystem(name) {
+      const sys = ATK_SYSTEMS[name];
+      if (!sys) return;
+      pushHistory();
+      const a_gk = players.find(p => p.id === 'a_gk');
+      if (name === '7v6') {
+        if (a_gk) {
+          a_gk.num = 7;
+          a_gk.label = '7º';
+          a_gk.isGK = false;
+          isGK7Active = true;
+          updateGK7ButtonUI();
+        }
+      } else {
+        if (isGK7Active && a_gk) {
+          a_gk.num = 1;
+          a_gk.label = 'GK';
+          a_gk.isGK = true;
+          isGK7Active = false;
+          updateGK7ButtonUI();
+        }
+      }
+      for (const pos of sys) {
+        const p = players.find(pl => pl.id === pos.id);
+        if (p) { p.x = pos.x; p.y = pos.y; }
+      }
+      saveCurrentFrame();
+      render();
+    }
+
+    /* ═══════════════════════════════════════════════════
+       FRAME SYSTEM
+       ═══════════════════════════════════════════════════ */
+    function initFrames() {
+      frames = [{
+        players: deepCopy(players),
+        drawings: deepCopy(drawings),
+        ball: Object.assign({}, ball),
+        label: 'Quadro 1',
+      }];
+      currentFrame = 0;
+      renderTimeline();
+    }
+
+    function saveCurrentFrame() {
+      if (!frames[currentFrame]) return;
+      frames[currentFrame].players = deepCopy(players);
+      frames[currentFrame].drawings = deepCopy(drawings);
+      frames[currentFrame].ball = Object.assign({}, ball);
+      renderThumbnail(currentFrame);
+      updateFrameCounter();
+    }
+
+    function loadFrame(idx) {
+      if (idx < 0 || idx >= frames.length) return;
+      currentFrame = idx;
+      players = deepCopy(frames[idx].players);
+      drawings = deepCopy(frames[idx].drawings);
+      if (frames[idx].ball) ball = Object.assign({}, frames[idx].ball);
+      const a_gk = players.find(p => p.id === 'a_gk');
+      isGK7Active = a_gk ? (!a_gk.isGK) : false;
+      updateGK7ButtonUI();
+      updateFrameCounter();
+      renderTimeline();
+      render();
+    }
+
+    function addFrame() {
+      pushHistory();
+      frames.push({
+        players: deepCopy(players),
+        drawings: deepCopy(drawings),
+        ball: Object.assign({}, ball),
+        label: `Quadro ${frames.length + 1}`,
+      });
+      currentFrame = frames.length - 1;
+      updateFrameCounter();
+      renderTimeline();
+    }
+
+    function deleteFrame() {
+      if (frames.length <= 1) return;
+      frames.splice(currentFrame, 1);
+      currentFrame = Math.min(currentFrame, frames.length - 1);
+      loadFrame(currentFrame);
+    }
+
+    function prevFrame() {
+      if (currentFrame > 0) loadFrame(currentFrame - 1);
+    }
+
+    function nextFrame() {
+      if (currentFrame < frames.length - 1) loadFrame(currentFrame + 1);
+    }
+
+    function updateFrameCounter() {
+      document.getElementById('frameCounter').textContent = `${currentFrame + 1} / ${frames.length}`;
+    }
+
+    /* ── Timeline UI ── */
+    function renderTimeline() {
+      const container = document.getElementById('tlFrames');
+      container.innerHTML = '';
+      for (let i = 0; i < frames.length; i++) {
+        const div = document.createElement('div');
+        div.className = 'tl-frame' + (i === currentFrame ? ' active' : '');
+        div.title = frames[i].label || `Quadro ${i + 1}`;
+        div.dataset.idx = i;
+
+        const c = document.createElement('canvas');
+        c.width = 144;
+        c.height = 92;
+        div.appendChild(c);
+
+        const num = document.createElement('div');
+        num.className = 'tl-frame-num';
+        num.textContent = i + 1;
+        div.appendChild(num);
+
+        div.addEventListener('click', () => loadFrame(i));
+        container.appendChild(div);
+
+        // Draw thumbnail
+        renderThumbnailOnCanvas(i, c);
+      }
+      updateFrameCounter();
+    }
+
+    function renderThumbnail(idx) {
+      const container = document.getElementById('tlFrames');
+      const divs = container.querySelectorAll('.tl-frame');
+      if (divs[idx]) {
+        const c = divs[idx].querySelector('canvas');
+        if (c) renderThumbnailOnCanvas(idx, c);
+        divs.forEach((d, i) => {
+          d.classList.toggle('active', i === currentFrame);
+        });
+      }
+    }
+
+    function renderThumbnailOnCanvas(idx, c) {
+      const tctx = c.getContext('2d');
+      const f = frames[idx];
+      if (!f) return;
+      const tw = c.width, th = c.height;
+      tctx.fillStyle = '#071322';
+      tctx.fillRect(0, 0, tw, th);
+
+      const sc = Math.min(tw / COURT_W, th / COURT_H) * 0.95;
+      const ox = (tw - COURT_W * sc) / 2;
+      const oy = (th - COURT_H * sc) / 2;
+
+      // Court surface
+      tctx.fillStyle = '#2980b9';
+      tctx.fillRect(ox, oy, COURT_W * sc, COURT_H * sc);
+      tctx.strokeStyle = '#fff';
+      tctx.lineWidth = 1;
+      tctx.strokeRect(ox, oy, COURT_W * sc, COURT_H * sc);
+
+      // Center line
+      tctx.beginPath();
+      tctx.moveTo(ox + (COURT_W / 2) * sc, oy);
+      tctx.lineTo(ox + (COURT_W / 2) * sc, oy + COURT_H * sc);
+      tctx.stroke();
+
+      // Players
+      for (const p of f.players) {
+        const px = ox + p.x * sc;
+        const py = oy + p.y * sc;
+        const r = Math.max(3, sc * 0.55);
+        tctx.beginPath();
+        tctx.arc(px, py, r + 1, 0, Math.PI * 2);
+        tctx.fillStyle = '#fff';
+        tctx.fill();
+        tctx.beginPath();
+        tctx.arc(px, py, r, 0, Math.PI * 2);
+        tctx.fillStyle = teamColors[p.team];
+        tctx.fill();
+      }
+
+      // Ball in thumbnail
+      if (f.ball) {
+        const bx = ox + f.ball.x * sc;
+        const by = oy + f.ball.y * sc;
+        tctx.beginPath();
+        tctx.arc(bx, by, Math.max(2, sc * 0.35), 0, Math.PI * 2);
+        tctx.fillStyle = '#f59e0b';
+        tctx.fill();
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       PLAY / ANIMATION
+       ═══════════════════════════════════════════════════ */
+    function togglePlay() {
+      isPlaying ? stopPlay() : startPlay();
+    }
+
+    function startPlay() {
+      if (frames.length < 2) return;
+      isPlaying = true;
+      document.getElementById('playIcon').className = 'fas fa-pause';
+      scheduleNext();
+    }
+
+    function stopPlay() {
+      isPlaying = false;
+      document.getElementById('playIcon').className = 'fas fa-play';
+      if (playTimer) { clearTimeout(playTimer); playTimer = null; }
+      if (animRafId) { cancelAnimationFrame(animRafId); animRafId = null; }
+      animPlayers = null;
+      animBall = null;
+      render();
+    }
+
+    function scheduleNext() {
+      if (!isPlaying) return;
+      playTimer = setTimeout(() => {
+        if (currentFrame < frames.length - 1) {
+          animateToFrame(currentFrame + 1, () => {
+            if (isPlaying) scheduleNext();
+          });
+        } else {
+          // Loop back
+          animateToFrame(0, () => {
+            if (isPlaying) scheduleNext();
+          });
+        }
+      }, animInterval);
+    }
+
+    function animateToFrame(targetIdx, callback) {
+      const fromPlayers = deepCopy(players);
+      const fromBall = Object.assign({}, ball);
+      const toFrame = frames[targetIdx];
+      const toBall = toFrame.ball || fromBall;
+      const startTime = performance.now();
+      const duration = animDurationMs;
+
+      function step(now) {
+        const t = Math.max(0, Math.min(1, (now - startTime) / duration));
+        const eased = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; // ease in-out
+
+        animPlayers = fromPlayers.map(fp => {
+          const tp = toFrame.players.find(p => p.id === fp.id);
+          if (!tp) return fp;
+          return Object.assign({}, fp, {
+            x: fp.x + (tp.x - fp.x) * eased,
+            y: fp.y + (tp.y - fp.y) * eased,
+          });
+        });
+
+        animBall = {
+          x: fromBall.x + (toBall.x - fromBall.x) * eased,
+          y: fromBall.y + (toBall.y - fromBall.y) * eased,
+          visible: true
+        };
+
+        render();
+
+        if (t < 1) {
+          animRafId = requestAnimationFrame(step);
+        } else {
+          animPlayers = null;
+          animBall = null;
+          currentFrame = targetIdx;
+          players = deepCopy(toFrame.players);
+          drawings = deepCopy(toFrame.drawings);
+          if (toFrame.ball) ball = Object.assign({}, toFrame.ball);
+          render();
+          renderTimeline();
+          if (callback) callback();
+        }
+      }
+      animRafId = requestAnimationFrame(step);
+    }
+
+    /* ═══════════════════════════════════════════════════
+       EXPORT PNG
+       ═══════════════════════════════════════════════════ */
+    function exportPNG() {
+      const link = document.createElement('a');
+      link.download = `tatica_cdhu_quadro${currentFrame + 1}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    /* ═══════════════════════════════════════════════════
+       PRESET LIBRARY
+       ═══════════════════════════════════════════════════ */
+    /* ── PLAYBOOK: carrega uma jogada da base (data/plays.js) como quadros animáveis ── */
+    function loadPlayFromBook(play, model) {
+      if (typeof stopPlay === 'function') stopPlay();
+      if (typeof stopPlaySimulation === 'function') stopPlaySimulation();
+      pushHistory();
+      const base = defaultPlayers();
+      const dsys = DEF_SYSTEMS[model.def];
+      if (dsys) {
+        for (const pos of dsys) {
+          const pl = base.find(x => x.id === pos.id);
+          if (pl) { pl.x = pos.x; pl.y = pos.y; }
+        }
+      }
+      const gk = base.find(x => x.id === 'a_gk');
+      const is7 = model.atk === '7x6';
+      if (is7 && gk) { gk.num = 7; gk.label = '7º'; gk.isGK = false; }
+      isGK7Active = is7;
+      updateGK7ButtonUI();
+      const built = Playbook.build(model, base, { nameA: teamNames.A, nameB: teamNames.B });
+      frames = built.map(f => ({ players: f.players, drawings: f.drawings, ball: f.ball, label: f.label }));
+      frames.isBook = true;
+      currentFrame = 0;
+      loadFrame(0);
+    }
+    window.loadPlayFromBook = loadPlayFromBook;
+
+    function savePreset() {
+      if (window.TacticalBoard) {
+        TacticalBoard.saveSituation(players, drawings);
+        return;
+      }
+      const name = prompt('Nome da situação:', `Situação ${presets.length + 1}`);
+      if (!name) return;
+      presets.push({
+        name,
+        players: deepCopy(players),
+        drawings: deepCopy(drawings),
+      });
+      renderPresets();
+    }
+
+    function loadPreset(idx) {
+      let sourceList = presets;
+      if (window.TacticalBoard && TacticalBoard.presets && TacticalBoard.presets.length > 0) {
+        sourceList = TacticalBoard.presets;
+      }
+      if (!sourceList[idx]) return;
+      pushHistory();
+      players = deepCopy(sourceList[idx].players);
+      drawings = deepCopy(sourceList[idx].drawings);
+      saveCurrentFrame();
+      render();
+      if (window.showPlayToast) {
+        showPlayToast(`Situação "${sourceList[idx].name}" carregada com sucesso!`, 'goal', '📂', 2500);
+      }
+    }
+
+    function renderPresets() {
+      if (window.TacticalBoard) {
+        TacticalBoard.renderPresetsList();
+        return;
+      }
+      const list = document.getElementById('presetsList');
+      if (!list) return;
+      list.innerHTML = '';
+      presets.forEach((p, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'sys-btn';
+        btn.innerHTML = `<i class="fas fa-bookmark" style="color:var(--accent)"></i> <span></span>`;
+        btn.querySelector('span').textContent = p.name;
+        btn.onclick = () => loadPreset(i);
+        list.appendChild(btn);
+      });
+    }
+
+    /* ═══════════════════════════════════════════════════
+       KEYBOARD SHORTCUTS
+       ═══════════════════════════════════════════════════ */
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'ArrowLeft') prevFrame();
+      if (e.key === 'ArrowRight') nextFrame();
+      if (e.key === ' ') { e.preventDefault(); executePlay(); }
+      if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undoAction(); }
+      if (e.ctrlKey && (e.key === 'y' || e.key === 'Z')) { e.preventDefault(); redoAction(); }
+      if (e.key === 'Escape') { cancelTextInput(); closePlayerPopup(); stopPlay(); stopPlaySimulation(); }
+      // Tool shortcuts
+      if (!e.ctrlKey && !e.metaKey) {
+        const map = { s: 'select', m: 'move', p: 'pass', d: 'dribble', g: 'shot', b: 'block', z: 'zone', t: 'text', e: 'eraser', o: 'ball' };
+        if (map[e.key.toLowerCase()]) setTool(map[e.key.toLowerCase()]);
+      }
+    });
+
+    /* ═══════════════════════════════════════════════════
+       RESIZE OBSERVER
+       ═══════════════════════════════════════════════════ */
+    const resizeObserver = new ResizeObserver(() => resizeCanvas());
+    resizeObserver.observe(wrapper);
+    window.addEventListener('resize', resizeCanvas);
+
+    /* ═══════════════════════════════════════════════════
+       TOUCH PINCH ZOOM (basic)
+       ═══════════════════════════════════════════════════ */
+    let pinchDist0 = 0;
+    let scale0 = 1;
+
+    canvas.addEventListener('touchstart', e => {
+      if (e.touches.length === 2) {
+        pinchDist0 = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        scale0 = scale;
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', e => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        // pinch zoom is cosmetic only — adjust scale factor
+        // resizeCanvas handles physical sizing; for now just re-render
+      }
+    }, { passive: false });
+
+    /* ═══════════════════════════════════════════════════
+       INIT
+       ═══════════════════════════════════════════════════ */
+    function init() {
+      resizeCanvas();
+      initFrames();
+      setTool('select');
+      render();
+    }
+
+    init();
+  </script>
+
+  <!-- MODAL DE REGRAS OFICIAIS DO HANDEBOL (IHF) -->
+  <div class="tac-modal-backdrop" id="rulesModalBackdrop"
+    onclick="if(event.target===this)TacticalBoard.closeRulesModal()">
+    <div class="tac-modal-content">
+      <div class="tac-modal-header">
+        <h3><i class="fas fa-book-open" style="color:var(--accent);margin-right:8px;"></i> Regras Oficiais do Handebol
+          (IHF)</h3>
+        <button class="tac-modal-close" onclick="TacticalBoard.closeRulesModal()" title="Fechar"><i
+            class="fas fa-times"></i></button>
+      </div>
+      <div class="tac-modal-body">
+        <div class="rules-grid">
+          <div class="rule-item-box">
+            <strong><i class="fas fa-stopwatch"></i> Duração da Partida (Regra 2)</strong>
+            <p>2 tempos de 30 minutos (adulto) ou 25 minutos (juvenil), com 10 a 15 min de intervalo. Timeouts de 1 min
+              por equipe em cada tempo.</p>
+          </div>
+          <div class="rule-item-box">
+            <strong><i class="fas fa-shoe-prints"></i> Regra dos 3 Passos (Regra 7.2)</strong>
+            <p>O jogador pode dar no máximo 3 passos segurando a bola. Para progredir mais quadra adentro, deve quicar a
+              bola no solo continuamente.</p>
+          </div>
+          <div class="rule-item-box">
+            <strong><i class="fas fa-hourglass-half"></i> Limite de 3 Segundos (Regra 7.1)</strong>
+            <p>Máximo de 3 segundos retendo a posse de bola parada sem realizar passe, arremesso ao gol ou drible.</p>
+          </div>
+          <div class="rule-item-box">
+            <strong><i class="fas fa-exclamation-triangle"></i> Jogo Passivo (Regra 7.11)</strong>
+            <p>Manter a bola sem intenção evidente de atacar ou arremessar. Após o gesto de advertência dos árbitros, a
+              equipe dispõe de no máximo 4 a 6 passes para concluir.</p>
+          </div>
+          <div class="rule-item-box">
+            <strong><i class="fas fa-ban"></i> Área de Gol dos 6m (Regra 6)</strong>
+            <p>Área restrita exclusivamente ao goleiro. Invasão de atacante resulta em perda de posse; invasão de
+              defensor frustrando arremesso claro resulta em tiro de 7m.</p>
+          </div>
+          <div class="rule-item-box">
+            <strong><i class="fas fa-id-badge"></i> Sanções Disciplinares (Regra 8 e 16)</strong>
+            <p>Cartão Amarelo (advertência) → Exclusão de 2 minutos (equipe atua com 1 jogador a menos) → Cartão
+              Vermelho na 3ª exclusão (desqualificação).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTÃO FLUTUANTE PARA MOBILE (ABRIR PAINEL TÁTICO) -->
+  <button class="mobile-side-toggle" onclick="TacticalBoard.toggleMobileSidebar()" title="Painel Tático">
+    <i class="fas fa-list-alt"></i>
+  </button>
+</body>
+
+</html>

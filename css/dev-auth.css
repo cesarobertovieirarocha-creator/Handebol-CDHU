@@ -1,0 +1,533 @@
+/* ==========================================================================
+   ADESP / CDHU — ESTILOS DA ÁREA DEV & AUTENTICAÇÃO
+   Design: Editorial Luxury Sport (Paleta Floresta Escura & Creme Nobre)
+   ========================================================================== */
+
+:root {
+  --bg-deep-forest: #03130d;
+  --bg-forest-card: #082619;
+  --bg-forest-card-gradient: linear-gradient(145deg, #0d3826 0%, #051a11 100%);
+  --bg-cream: #F6F3EB;
+  --bg-cream-input: #EDE9DF;
+  
+  --primary-green: #0d3c26;
+  --primary-green-hover: #124d32;
+  --accent-gold: #C89B3C;
+  --accent-gold-light: #DFB75A;
+  --accent-gold-glow: rgba(200, 155, 60, 0.25);
+  
+  --text-dark: #1A1A1A;
+  --text-muted-dark: #6C727A;
+  --text-light: #F5F7F6;
+  --text-muted-green: #A3BDAE;
+  
+  --border-cream: #DDD7CA;
+  --border-green: rgba(255, 255, 255, 0.12);
+  
+  --font-serif: 'Fraunces', 'Playfair Display', Georgia, serif;
+  --font-sans: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  --shadow-card: 0 24px 60px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-btn: 0 10px 22px rgba(13, 60, 38, 0.42);
+  --radius-card: 26px;
+  --radius-pill: 9999px;
+  --transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: radial-gradient(circle at 50% 30%, #082318 0%, #03130d 75%, #010a06 100%);
+  color: var(--text-light);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Background Atmosphere Glow */
+body::before {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 500px;
+  background: radial-gradient(ellipse, rgba(19, 78, 52, 0.28) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Top Bar ── */
+.auth-topbar {
+  width: 100%;
+  max-width: 1060px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  z-index: 10;
+  margin-bottom: 12px;
+}
+
+.back-to-site {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #D3C4A5;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  transition: var(--transition);
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.back-to-site:hover {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateX(-3px);
+}
+
+/* ── Main Auth Card Container ── */
+.auth-wrapper {
+  width: 100%;
+  max-width: 1040px;
+  position: relative;
+  z-index: 10;
+  margin: auto 0;
+}
+
+.auth-card {
+  display: flex;
+  min-height: 570px;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  background: #000;
+  position: relative;
+  transition: var(--transition);
+}
+
+/* ── Panels ── */
+.panel {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: var(--transition);
+  padding: 52px 56px;
+  z-index: 1;
+}
+
+/* Diagonal Slanted Separator */
+.panel-cream {
+  background-color: var(--bg-cream);
+  color: var(--text-dark);
+}
+
+.panel-forest {
+  background: var(--bg-forest-card-gradient);
+  color: var(--text-light);
+}
+
+/* Slant styling depending on position */
+.auth-card.mode-login .panel-cream {
+  clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+  margin-right: -40px;
+  padding-right: 80px;
+}
+
+.auth-card.mode-login .panel-forest {
+  padding-left: 60px;
+}
+
+.auth-card.mode-request .panel-forest {
+  clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+  margin-right: -40px;
+  padding-right: 80px;
+}
+
+.auth-card.mode-request .panel-cream {
+  padding-left: 60px;
+}
+
+/* ── Form Section Typography ── */
+.panel-cream .title-serif {
+  font-family: var(--font-serif);
+  font-size: 2.15rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+.panel-cream .gold-bar {
+  width: 36px;
+  height: 3px;
+  background: var(--accent-gold);
+  border-radius: 2px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.panel-cream .subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted-dark);
+  line-height: 1.5;
+  margin-bottom: 32px;
+  max-width: 380px;
+}
+
+/* ── Input Styling ── */
+.form-group {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.input-underline {
+  width: 100%;
+  border: none;
+  border-bottom: 1.5px solid var(--border-cream);
+  background: transparent;
+  padding: 10px 36px 10px 0;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  transition: var(--transition);
+  outline: none;
+}
+
+.input-underline::placeholder {
+  color: #9E9B93;
+  font-size: 0.92rem;
+}
+
+.input-underline:focus {
+  border-bottom-color: var(--primary-green);
+}
+
+.input-icon {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8C8880;
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.toggle-password-btn {
+  pointer-events: auto;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.toggle-password-btn:hover {
+  color: var(--primary-green);
+}
+
+/* Select element styled as underline */
+select.input-underline {
+  appearance: none;
+  cursor: pointer;
+  color: var(--text-dark);
+}
+
+.select-arrow {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8C8880;
+  pointer-events: none;
+  font-size: 0.85rem;
+}
+
+/* Forgot password link */
+.forgot-pass-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -12px;
+  margin-bottom: 24px;
+}
+
+.forgot-pass-link {
+  font-size: 0.78rem;
+  color: #555555;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.forgot-pass-link:hover {
+  color: var(--primary-green);
+  text-decoration: underline;
+}
+
+/* ── Submit Button ── */
+.btn-submit {
+  width: 100%;
+  padding: 14px 24px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: linear-gradient(135deg, #0e442c 0%, #072a1b 100%);
+  color: #FFFFFF;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  box-shadow: var(--shadow-btn);
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-submit:hover {
+  background: linear-gradient(135deg, #135537 0%, #0b3925 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 26px rgba(13, 60, 38, 0.52);
+}
+
+.btn-submit:active {
+  transform: translateY(0);
+}
+
+/* ── Switcher Bottom Link ── */
+.auth-switch-text {
+  margin-top: 24px;
+  font-size: 0.84rem;
+  color: #6C727A;
+}
+
+.auth-switch-link {
+  color: var(--text-dark);
+  font-weight: 700;
+  text-decoration: none;
+  position: relative;
+  cursor: pointer;
+  padding-bottom: 2px;
+  border-bottom: 2px solid var(--accent-gold);
+  transition: var(--transition);
+}
+
+.auth-switch-link:hover {
+  color: var(--primary-green);
+  border-bottom-color: var(--primary-green);
+}
+
+/* ── Brand Panel (Dark Forest) ── */
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.brand-badge img {
+  height: 38px;
+  width: auto;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+}
+
+.brand-badge span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #8EB79F;
+  text-transform: uppercase;
+}
+
+.panel-forest .brand-title {
+  font-family: var(--font-serif);
+  font-size: 2.85rem;
+  line-height: 1.15;
+  color: #FFFFFF;
+  font-weight: 600;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+}
+
+.panel-forest .brand-title .italic-gold {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent-gold-light);
+  display: block;
+}
+
+.panel-forest .brand-desc {
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: var(--text-muted-green);
+  max-width: 340px;
+  margin-bottom: 32px;
+}
+
+/* Feature Tag Pills */
+.feature-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.feature-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #B5CCC0;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(8px);
+}
+
+/* Quick Credentials Demo Box */
+.demo-creds-box {
+  margin-top: 24px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px dashed #D5CEBF;
+  font-size: 0.75rem;
+  color: #555;
+}
+
+.demo-creds-box summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--primary-green);
+  outline: none;
+}
+
+.demo-creds-box .creds-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.demo-creds-box .cred-item {
+  display: flex;
+  justify-content: space-between;
+  background: #FFF;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #E5E0D5;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.demo-creds-box .cred-item:hover {
+  background: #F3EFE6;
+  border-color: var(--accent-gold);
+}
+
+/* ── Bottom Legal Footer ── */
+.auth-footer {
+  width: 100%;
+  text-align: center;
+  font-size: 0.78rem;
+  color: #5D796B;
+  z-index: 10;
+  margin-top: 14px;
+}
+
+.auth-footer a {
+  color: #92B2A1;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s;
+}
+
+.auth-footer a:hover {
+  color: #FFFFFF;
+}
+
+/* ── Feedback Message Toast / Alert ── */
+.auth-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transform: translateY(120%);
+  opacity: 0;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000;
+}
+
+.auth-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.auth-toast.error {
+  background: #B91C1C;
+  color: #FFF;
+  border: 1px solid #DC2626;
+}
+
+.auth-toast.success {
+  background: #064E3B;
+  color: #ECFDF5;
+  border: 1px solid #059669;
+}
+
+.auth-toast.info {
+  background: #1E3A8A;
+  color: #EFF6FF;
+  border: 1px solid #2563EB;
+}
+
+/* ── Responsive Mobile ── */
+@media (max-width: 900px) {
+  body {
+    padding: 16px;
+  }
+  
+  .auth-card {
+    flex-direction: column-reverse;
+    min-height: auto;
+  }
+  
+  .auth-card.mode-login .panel-cream,
+  .auth-card.mode-login .panel-forest,
+  .auth-card.mode-request .panel-forest,
+  .auth-card.mode-request .panel-cream {
+    clip-path: none !important;
+    margin-right: 0 !important;
+    padding: 40px 28px !important;
+  }
+  
+  .panel-forest {
+    order: -1;
+  }
+  
+  .panel-forest .brand-title {
+    font-size: 2.1rem;
+  }
+}
+

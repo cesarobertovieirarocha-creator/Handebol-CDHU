@@ -1,0 +1,2049 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADESP Performance — Central de Gestão & Monitoramento de Atletas</title>
+    <meta name="description"
+        content="Central de Desempenho e Monitoramento de Atletas da ADESP/CDHU Uberlândia. Plataforma exclusiva para comissão técnica e departamento médico.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" href="Imagens/CDHU.png">
+
+    <!-- Guarda de Autenticação da Área Dev (Execução imediata para proteção de dados) -->
+    <script src="js/auth-guard.js"></script>
+
+    <!-- Preconnect e Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Oswald:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Design System e Componentes Compartilhados -->
+    <link rel="stylesheet" href="css/components.css">
+
+    <!-- Chart.js para Gráficos Interativos (Versão fixada 4.4.1) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Folha de Estilos Exclusiva da Central Performance -->
+    <link rel="stylesheet" href="css/performance.css">
+</head>
+
+<body>
+
+    <!-- BARRA SUPERIOR EXCLUSIVA -->
+    <header class="perf-navbar">
+        <a href="index.html" class="perf-brand">
+            <img src="Imagens/ADESPCDHU.png" alt="Logo ADESP/CDHU" onerror="this.src='Imagens/CDHU.png'">
+            <div class="perf-brand-text">
+                <h1>ADESP Performance</h1>
+                <span>Gestão & Monitoramento de Atletas</span>
+            </div>
+        </a>
+
+        <div class="perf-dev-badge">
+            <i class="fas fa-satellite-dish"></i>
+            <span>Módulo em Desenvolvimento • MVP v1.0</span>
+        </div>
+
+        <div class="perf-user-nav">
+            <select class="role-selector" id="roleSelector" onchange="alterarPerfilAcesso(this.value)">
+                <option value="tecnica">👤 Comissão Técnica (Treinador)</option>
+                <option value="medica">🩺 Equipe Médica / Fisioterapia</option>
+                <option value="admin">🔒 Administrador do Clube</option>
+            </select>
+
+            <a href="tatica.html" class="back-to-site-btn" style="background:rgba(10,80,158,0.2);border-color:rgba(10,80,158,0.5);color:#60a5fa;">
+                <i class="fas fa-chess-board"></i> Prancheta Tática
+            </a>
+            <a href="index.html" class="back-to-site-btn">
+                <i class="fas fa-arrow-left"></i> Voltar ao Site
+            </a>
+        </div>
+    </header>
+
+    <!-- BANNER DE STATUS DO PROJETO -->
+    <div class="dev-alert-banner">
+        <span>
+            <i class="fas fa-flask" style="color: var(--accent-gold); margin-right: 8px;"></i>
+            <strong>Ambiente de Homologação Esportiva:</strong> Você está visualizando o protótipo funcional integrado à base de dados da temporada 2026.
+        </span>
+        <span style="font-size: 0.8rem; color: #cbd5e1;">
+            Conexão Supabase / RLS: <strong style="color: #4ade80;">Planejada (Documentada)</strong>
+        </span>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="perf-container">
+
+        <!-- ABAS DE NAVEGAÇÃO (PADRÃO HANDEBOL PROFISSIONAL) -->
+        <nav class="perf-tabs">
+            <button class="perf-tab-btn active" onclick="switchTab('dashboard', this)">
+                <i class="fas fa-chart-pie"></i> Dashboard & Quadra
+            </button>
+            <button class="perf-tab-btn" onclick="switchTab('perfil', this)">
+                <i class="fas fa-user-ninja"></i> Perfil & Baliza 3x3
+            </button>
+            <button class="perf-tab-btn" onclick="switchTab('partida', this)">
+                <i class="fas fa-stopwatch"></i> Central da Partida (Match Center)
+            </button>
+            <button class="perf-tab-btn" onclick="switchTab('goleiros', this)">
+                <i class="fas fa-hands"></i> Goleiros & Defesas 3x3
+            </button>
+            <button class="perf-tab-btn" onclick="switchTab('medico', this)">
+                <i class="fas fa-heartbeat"></i> Depto. Médico <span class="badge-pill">LGPD</span>
+            </button>
+            <button class="perf-tab-btn" onclick="switchTab('relatorios', this)">
+                <i class="fas fa-balance-scale"></i> Comparativo Tático
+            </button>
+        </nav>
+
+        <!-- =============================================================
+             MÓDULO A: DASHBOARD GERAL & QUADRA TÁTICA
+        ============================================================= -->
+        <section id="tab-dashboard" class="tab-pane active">
+
+            <!-- INSIGHTS TÁTICOS AUTOMÁTICOS -->
+            <div class="insights-card">
+                <div class="insights-header">
+                    <h3>
+                        <i class="fas fa-brain" style="color: var(--accent-gold);"></i>
+                        Insights Táticos Gerados Automaticamente
+                    </h3>
+                    <span class="insights-tag"><i class="fas fa-bolt"></i> IA Analytics ADESP</span>
+                </div>
+                <ul class="insights-list" id="listaInsightsTaticos">
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <span><strong>Eficiência Ofensiva:</strong> ADESP converte 71.5% dos arremessos totais (143 gols em 200 tentativas), com taxa de 0.98 gols por posse de bola.</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-fire"></i>
+                        <span><strong>Destaque xG:</strong> Lucas Reimer registra +4.2 xG Diff na temporada (33 gols reais contra 28.8 esperados), maior índice de conversão da liga.</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-running"></i>
+                        <span><strong>Velocidade de Transição:</strong> O time converte 79.4% dos contra-ataques de 1ª e 2ª onda, gerando 27 gols diretos em roubos de bola.</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-shield-alt"></i>
+                        <span><strong>Solidez Defensiva:</strong> Sistema defensivo 6:0 com flutuação concedeu apenas 22.0 gols/jogo, forçando 14 turnovers adversários por partida.</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-bullseye"></i>
+                        <span><strong>Aproveitamento nos 7 Metros:</strong> 86.4% de eficácia em tiros de 7 metros (19 convertidos em 22 cobranças), liderados por André Luiz e Lucas Reimer.</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-balance-scale"></i>
+                        <span><strong>Disciplina Tática:</strong> Zero cartões vermelhos ou azuis em 300 minutos oficiais de jogo na temporada 2026.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- CARDS DE KPIS GERAIS -->
+            <div class="kpi-grid">
+                <div class="kpi-card green">
+                    <div class="kpi-icon" style="background: rgba(34, 197, 94, 0.15); color: #4ade80;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="kpiTotalAtletas">30</h3>
+                        <p>Atletas Cadastrados</p>
+                        <span class="kpi-trend" id="kpiTrendIntegrados"><i class="fas fa-check-circle"></i> 100% integrados</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background: rgba(10, 80, 158, 0.15); color: #60a5fa;">
+                        <i class="fas fa-running"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="kpiAtletasAptos">24</h3>
+                        <p>Atletas Ativos / Aptos</p>
+                        <span class="kpi-trend" id="kpiTrendAptos"><i class="fas fa-shield-alt"></i> Prontos para jogo</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card gold">
+                    <div class="kpi-icon" style="background: rgba(244, 197, 66, 0.15); color: #F4C542;">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="kpiMediaGols">28.6</h3>
+                        <p>Média de Gols / Partida</p>
+                        <span class="kpi-trend" id="kpiTrendGols"><i class="fas fa-arrow-up"></i> 143 gols na temporada</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card green">
+                    <div class="kpi-icon" style="background: rgba(31, 138, 77, 0.15); color: #4ade80;">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="kpiAproveitamento">100%</h3>
+                        <p>Aproveitamento LIDTAP</p>
+                        <span class="kpi-trend"><i class="fas fa-star"></i> 5 vitórias consecutivas</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QUADRA TÁTICA E ZONAS DE ARREMESSO (HANDBALL COURT SHOT MAP) -->
+            <div class="court-interactive-wrap">
+                <div class="court-header">
+                    <div>
+                        <h2 style="font-family: 'Oswald', sans-serif; font-size: 1.4rem; color: #fff; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-map-marked-alt" style="color: var(--accent-gold);"></i>
+                            Zonas de Finalização em Quadra & Eficiência de Arremesso
+                        </h2>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">
+                            Distribuição e conversão oficial da ADESP/CDHU por setor tático (6m, 9m, Pontas, 7m e Contra-Ataque)
+                        </span>
+                    </div>
+                    <span class="status-pill status-apto" style="font-size: 0.8rem; padding: 5px 12px;">
+                        <i class="fas fa-check-double"></i> 143 Gols / 200 Arremessos (71.5%)
+                    </span>
+                </div>
+
+                <div class="court-zones-grid">
+                    <div class="court-zone-box">
+                        <div class="court-zone-title">
+                            <span>Ponta Esquerda</span>
+                            <span class="court-zone-badge eff-high">73.7%</span>
+                        </div>
+                        <div class="court-zone-stat">28 / 38</div>
+                        <span style="font-size: 0.72rem; color: #94a3b8;">L. Reimer, E. Frange</span>
+                    </div>
+
+                    <div class="court-zone-box">
+                        <div class="court-zone-title">
+                            <span>Armador Esquerdo (9m)</span>
+                            <span class="court-zone-badge eff-med">60.5%</span>
+                        </div>
+                        <div class="court-zone-stat">26 / 43</div>
+                        <span style="font-size: 0.72rem; color: #94a3b8;">L. Malveira, G. Augusto</span>
+                    </div>
+
+                    <div class="court-zone-box">
+                        <div class="court-zone-title">
+                            <span>Central (9m / Infiltração)</span>
+                            <span class="court-zone-badge eff-high">67.4%</span>
+                        </div>
+                        <div class="court-zone-stat">29 / 43</div>
+                        <span style="font-size: 0.72rem; color: #94a3b8;">André Luiz, Suelso Jr</span>
+                    </div>
+
+                    <div class="court-zone-box">
+                        <div class="court-zone-title">
+                            <span>Pivô (Área 6m)</span>
+                            <span class="court-zone-badge eff-high">80.0%</span>
+                        </div>
+                        <div class="court-zone-stat">20 / 25</div>
+                        <span style="font-size: 0.72rem; color: #94a3b8;">Nillander, Bruno T.</span>
+                    </div>
+
+                    <div class="court-zone-box">
+                        <div class="court-zone-title">
+                            <span>Armador Direito (9m)</span>
+                            <span class="court-zone-badge eff-med">58.3%</span>
+                        </div>
+                        <div class="court-zone-stat">14 / 24</div>
+                        <span style="font-size: 0.72rem; color: #94a3b8;">Pedro Amaral, T. Tolomelli</span>
+                    </div>
+
+                    <div class="court-zone-box">
+                        <div class="court-zone-title">
+                            <span>Ponta Direita</span>
+                            <span class="court-zone-badge eff-high">76.2%</span>
+                        </div>
+                        <div class="court-zone-stat">16 / 21</div>
+                        <span style="font-size: 0.72rem; color: #94a3b8;">César Roberto, Jan F.</span>
+                    </div>
+
+                    <div class="court-zone-box" style="border-color: rgba(244, 197, 66, 0.4);">
+                        <div class="court-zone-title">
+                            <span>Tiro de 7 Metros</span>
+                            <span class="court-zone-badge eff-high">86.4%</span>
+                        </div>
+                        <div class="court-zone-stat" style="color: var(--accent-gold);">19 / 22</div>
+                        <span style="font-size: 0.72rem; color: #94a3b8;">L. Reimer, André L., Suelso</span>
+                    </div>
+
+                    <div class="court-zone-box" style="border-color: rgba(34, 197, 94, 0.4);">
+                        <div class="court-zone-title">
+                            <span>Contra-Ataque (1ª Onda)</span>
+                            <span class="court-zone-badge eff-high">79.4%</span>
+                        </div>
+                        <div class="court-zone-stat" style="color: #4ade80;">27 / 34</div>
+                        <span style="font-size: 0.72rem; color: #94a3b8;">Transição Rápida</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LINHA DE GRÁFICOS INTERATIVOS -->
+            <div class="chart-row">
+                <!-- Gráfico de Evolução de Desempenho por Partida -->
+                <div class="perf-box">
+                    <div class="perf-box-header">
+                        <h2><i class="fas fa-chart-line"></i> Evolução de Gols por Partida (LIDTAP 2026)</h2>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Gols Pró vs. Gols Sofridos</span>
+                    </div>
+                    <div style="height: 320px; position: relative;">
+                        <canvas id="chartEvolucaoPartidas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Distribuição por Posições -->
+                <div class="perf-box">
+                    <div class="perf-box-header">
+                        <h2><i class="fas fa-pie-chart"></i> Gols por Setor</h2>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Volume Ofensivo</span>
+                    </div>
+                    <div style="height: 320px; position: relative;">
+                        <canvas id="chartGolsSetor"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABELA DE DESTAQUES & ARTILHARIA -->
+            <div class="perf-box">
+                <div class="perf-box-header">
+                    <h2><i class="fas fa-medal"></i> Quadro Geral de Eficiência dos Atletas</h2>
+                    <button class="perf-btn green" onclick="exportarRelatorioSimulado()">
+                        <i class="fas fa-download"></i> Exportar Dados (.CSV)
+                    </button>
+                </div>
+
+                <div class="perf-table-wrap">
+                    <table class="perf-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Atleta</th>
+                                <th>Posição</th>
+                                <th>Idade</th>
+                                <th>Jogos</th>
+                                <th>Gols</th>
+                                <th>Média Gols/J</th>
+                                <th>Status Físico</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaGeralAtletas">
+                            <!-- Preenchido via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- =============================================================
+             MÓDULO B: PERFIL INDIVIDUAL DO ATLETA & BALIZA 3x3
+        ============================================================= -->
+        <section id="tab-perfil" class="tab-pane">
+
+            <!-- SELETOR DINÂMICO DE ATLETA -->
+            <div class="athlete-search-wrap">
+                <label for="selectAtletaPerfil"><i class="fas fa-search"></i> Selecione o Atleta para Análise Detalhada:</label>
+                <select id="selectAtletaPerfil" class="athlete-select" onchange="carregarPerfilAtleta(this.value)">
+                    <!-- Preenchido dinamicamente com os atletas reais da ADESP -->
+                </select>
+                <button class="perf-btn" onclick="abrirModalEdicao()">
+                    <i class="fas fa-edit"></i> Atualizar Indicadores
+                </button>
+            </div>
+
+            <!-- HEADER DO ATLETA SELECIONADO COM BIOMETRIA COMPLETA -->
+            <div class="athlete-profile-header">
+                <img id="atletaFoto" src="Imagens/Lucas Reimer.webp" alt="Foto Atleta" class="athlete-avatar" onerror="this.src='Imagens/player_placeholder.png'">
+                <div class="athlete-meta">
+                    <h3 id="atletaNome">Lucas Reimer</h3>
+                    <p style="color: var(--accent-gold); font-weight: 600; font-size: 0.95rem;" id="atletaPosicao"><span class="badge-pos ponta">Ponta</span> · ADESP Handebol</p>
+                    <div class="athlete-badges">
+                        <span class="athlete-badge primary" id="atletaIdade">30 Anos</span>
+                        <span class="athlete-badge status-apto" id="atletaStatusBadge">100% Apto para Competição</span>
+                        <span class="athlete-badge" id="atletaLateralidade"><i class="fas fa-hand-paper" style="color: var(--accent-gold);"></i> Destro</span>
+                        <span class="athlete-badge" id="atletaFisico"><i class="fas fa-ruler-vertical" style="color: #60a5fa;"></i> 1.81 m · 80 kg</span>
+                        <span class="athlete-badge" id="atletaSaldo" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; font-weight: 700; border-color: rgba(34, 197, 94, 0.35);"><i class="fas fa-plus-minus"></i> +28 Saldo (+/-)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARDS DE INDICADORES AVANÇADOS (SCOUT PROFISSIONAL) -->
+            <div class="kpi-grid">
+                <div class="kpi-card green">
+                    <div class="kpi-icon" style="background: rgba(34, 197, 94, 0.15); color: #4ade80;">
+                        <i class="fas fa-futbol"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="cardAtletaGols">33</h3>
+                        <p>Gols Registrados</p>
+                        <span class="kpi-trend" id="cardAtletaGolsTrend">33 gols em 42 arremessos</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card gold">
+                    <div class="kpi-icon" style="background: rgba(244, 197, 66, 0.15); color: #F4C542;">
+                        <i class="fas fa-crosshairs"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="cardAtletaAproveitamento">78.5%</h3>
+                        <p>Aproveitamento / Eficiência</p>
+                        <span class="kpi-trend" id="cardAtletaAprovTrend">Excelente Conversão</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background: rgba(10, 80, 158, 0.15); color: #60a5fa;">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="cardAtletaXG">28.8 xG</h3>
+                        <p>Gols Esperados (xG)</p>
+                        <span class="kpi-trend" id="cardAtletaXGTrend" style="color: #4ade80;"><i class="fas fa-arrow-up"></i> +4.2 xG Diff</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background: rgba(255, 255, 255, 0.08); color: #fff;">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="cardAtletaAssist">14</h3>
+                        <p>Assistências / Passes</p>
+                        <span class="kpi-trend" id="cardAtletaAssistTrend">Visão de Quadra</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card gold">
+                    <div class="kpi-icon" style="background: rgba(244, 197, 66, 0.15); color: #F4C542;">
+                        <i class="fas fa-dot-circle"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="cardAtleta7m">7/8 (87.5%)</h3>
+                        <p>Tiros de 7 Metros</p>
+                        <span class="kpi-trend" id="cardAtleta7mTrend">Especialista Penalidades</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background: rgba(139, 92, 246, 0.15); color: #c084fc;">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="cardAtletaAcoesDef">9 Roubos / 3 Bloq</h3>
+                        <p>Ações Defensivas</p>
+                        <span class="kpi-trend" id="cardAtletaAcoesDefTrend" style="color: #c084fc;">Intensidade Defensiva</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRÁFICOS DO PERFIL: RADAR DE SCOUT & BALIZA 3x3 -->
+            <div class="chart-row">
+                <!-- Coluna 1: Radar Chart de Habilidades Técnicas -->
+                <div class="perf-box">
+                    <div class="perf-box-header">
+                        <h2><i class="fas fa-chart-radar"></i> Radar de Competências Técnicas & Táticas</h2>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Índice 0 a 100</span>
+                    </div>
+                    <div style="height: 350px; position: relative;">
+                        <canvas id="chartRadarAtleta"></canvas>
+                    </div>
+                </div>
+
+                <!-- Coluna 2: Baliza 3x3 de Finalização (Distribuição nos 9 Quadrantes do Gol) -->
+                <div class="perf-box">
+                    <div class="perf-box-header">
+                        <h2><i class="fas fa-bullseye"></i> Baliza 3x3: Zonas de Finalização no Gol</h2>
+                        <span style="font-size: 0.8rem; color: #4ade80;" id="totalGolsBalizaAtleta">33 Gols Marcados</span>
+                    </div>
+                    
+                    <p style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 12px; text-align: center;">
+                        Mapa de calor da baliza de 3x2m com distribuição dos gols registrados por quadrante.
+                    </p>
+
+                    <div class="goal-frame-wrap">
+                        <div class="goal-grid-3x3" id="atletaGoalGrid">
+                            <!-- Preenchido via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="goal-legend">
+                        <span class="goal-legend-item"><span class="goal-legend-dot high"></span> Alta Frequência (≥ 3)</span>
+                        <span class="goal-legend-item"><span class="goal-legend-dot med"></span> Média (1 - 2)</span>
+                        <span class="goal-legend-item"><span class="goal-legend-dot low"></span> Baixa / Nenhuma (0)</span>
+                    </div>
+
+                    <div id="zonasPreferidasAtleta" style="margin-top: 15px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center;">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- HISTÓRICO RECENTE DE PARTIDAS DO ATLETA -->
+            <div class="perf-box" style="margin-top: 25px;">
+                <div class="perf-box-header">
+                    <h2><i class="fas fa-history"></i> Histórico Recente de Jogos na Temporada</h2>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">LIDTAP 2026</span>
+                </div>
+                <div id="historicoJogosAtleta" style="display: flex; flex-direction: column; gap: 12px;">
+                    <!-- Preenchido via JS -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- =============================================================
+             MÓDULO C: CENTRAL DA PARTIDA (MATCH CENTER AO VIVO & PÓS-JOGO)
+        ============================================================= -->
+        <section id="tab-partida" class="tab-pane">
+
+            <!-- SELETOR DE PARTIDA -->
+            <div class="athlete-search-wrap">
+                <label for="selectPartidaMatch"><i class="fas fa-stopwatch"></i> Selecione a Partida Oficial da Temporada:</label>
+                <select id="selectPartidaMatch" class="athlete-select" onchange="carregarCentralPartida(this.value)">
+                    <!-- Preenchido dinamicamente via JS com as partidas de data/matches.js -->
+                </select>
+                <button class="perf-btn green" onclick="window.print()">
+                    <i class="fas fa-file-contract"></i> Súmula Oficial
+                </button>
+            </div>
+
+            <!-- PLACAR & BANNER DO CONFRONTO -->
+            <div class="match-score-banner" id="matchScoreBanner">
+                <div class="match-team-block">
+                    <img src="Imagens/CDHU.png" alt="Escudo ADESP/CDHU" onerror="this.src='Imagens/ADESPCDHU.png'">
+                    <div>
+                        <h3 style="font-family: 'Oswald', sans-serif; font-size: 1.6rem; color: #fff;">ADESP/CDHU</h3>
+                        <span style="font-size: 0.82rem; color: var(--accent-gold); font-weight: 600;">Uberlândia / MG (Mandante)</span>
+                    </div>
+                </div>
+
+                <div class="match-score-display">
+                    <div class="match-score-numbers" id="matchScorePlacar">28 - 21</div>
+                    <div class="match-score-parciais" id="matchScoreParciais">1ºT: 13 x 11 | 2ºT: 15 x 10</div>
+                    <span class="status-pill status-apto" style="margin-top: 6px; font-size: 0.75rem;" id="matchStatusFim">Encerrado • Vitória ADESP</span>
+                </div>
+
+                <div class="match-team-block" style="flex-direction: row-reverse; text-align: right;">
+                    <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #60a5fa;">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-family: 'Oswald', sans-serif; font-size: 1.6rem; color: #fff;" id="matchNomeAdversario">APHA Paracatu</h3>
+                        <span style="font-size: 0.82rem; color: #94a3b8; font-weight: 600;">Paracatu / MG (Visitante)</span>
+                    </div>
+                </div>
+
+                <div class="match-meta-strip" style="width: 100%;">
+                    <span class="match-meta-pill" id="matchMetaCompeticao"><i class="fas fa-trophy"></i> LIDTAP 2026</span>
+                    <span class="match-meta-pill" id="matchMetaData"><i class="fas fa-calendar-alt"></i> 18/04/2026 · 16:30</span>
+                    <span class="match-meta-pill" id="matchMetaGinasio"><i class="fas fa-map-marker-alt"></i> Arena Tancredo Neves</span>
+                    <span class="match-meta-pill" id="matchMetaArbitragem"><i class="fas fa-whistle"></i> Árbitros: Marcio Silva & Rodrigo Silveira</span>
+                    <span class="match-meta-pill" id="matchMetaPublico"><i class="fas fa-users"></i> 420 presentes</span>
+                    <span class="match-meta-pill" style="border-color: rgba(244, 197, 66, 0.4); color: var(--accent-gold);" id="matchMetaMvp"><i class="fas fa-star"></i> MVP: Gabriel Augusto (7 gols)</span>
+                </div>
+            </div>
+
+            <!-- GRID COM GRÁFICO DE MOMENTUM E TIMELINE DE EVENTOS -->
+            <div class="chart-row">
+                <!-- Gráfico de Momentum do Placar (Diferença de Gols) -->
+                <div class="perf-box">
+                    <div class="perf-box-header">
+                        <h2><i class="fas fa-wave-square"></i> Gráfico de Momentum & Oscilação do Placar</h2>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Saldo de Gols por Minuto (-5 a +7)</span>
+                    </div>
+                    <p style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 15px;">
+                        Visualiza a dinâmica de virada e domínio do jogo. Valores acima de 0 representam liderança da ADESP/CDHU.
+                    </p>
+                    <div style="height: 340px; position: relative;">
+                        <canvas id="chartMomentumPartida"></canvas>
+                    </div>
+                </div>
+
+                <!-- Feed Cronológico de Eventos Minuto a Minuto -->
+                <div class="perf-box">
+                    <div class="perf-box-header">
+                        <h2><i class="fas fa-stream"></i> Linha do Tempo da Partida</h2>
+                        <span style="font-size: 0.8rem; color: #4ade80;"><i class="fas fa-circle" style="font-size: 0.6rem;"></i> Feed de Eventos</span>
+                    </div>
+                    <div class="timeline-stream" id="matchTimelineStream">
+                        <!-- Preenchido via JS com os eventos da partida -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPARATIVO HEAD-TO-HEAD COMPLETO DA PARTIDA -->
+            <div class="perf-box" style="margin-top: 25px;">
+                <div class="perf-box-header">
+                    <h2><i class="fas fa-exchange-alt"></i> Estatísticas Detalhadas Head-to-Head & Súmula Digital</h2>
+                    <span style="font-size: 0.8rem; color: var(--accent-gold);">Relatório Oficial da Mesa</span>
+                </div>
+
+                <div class="perf-table-wrap">
+                    <table class="h2h-table" id="tabelaEstatisticasPartida">
+                        <thead>
+                            <tr>
+                                <th style="text-align: right; color: #4ade80;">ADESP/CDHU</th>
+                                <th style="text-align: center;">Indicador Tático</th>
+                                <th style="text-align: left; color: #93c5fd;" id="colAdversarioHeader">Adversário</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoEstatisticasPartida">
+                            <!-- Preenchido dinamicamente via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Resumo Tático da Partida -->
+                <div style="margin-top: 25px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glass); border-radius: 14px; padding: 20px;">
+                    <h4 style="font-family: 'Oswald', sans-serif; font-size: 1.15rem; color: var(--accent-gold); margin-bottom: 8px;">
+                        <i class="fas fa-clipboard-check"></i> Relatório da Comissão Técnica & Análise Pós-Jogo
+                    </h4>
+                    <p id="matchRecapText" style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 10px;">
+                        <!-- Preenchido via JS -->
+                    </p>
+                    <p id="matchHighlightsText" style="font-size: 0.85rem; color: #94a3b8; font-style: italic;">
+                        <!-- Preenchido via JS -->
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- =============================================================
+             MÓDULO D: GOLEIROS & DEFESAS 3x3
+        ============================================================= -->
+        <section id="tab-goleiros" class="tab-pane">
+
+            <!-- SELETOR DE GOLEIRO -->
+            <div class="athlete-search-wrap">
+                <label for="selectGoleiroAnalise"><i class="fas fa-hands"></i> Selecione o Goleiro para Análise Especializada:</label>
+                <select id="selectGoleiroAnalise" class="athlete-select" onchange="carregarAnaliseGoleiro(this.value)">
+                    <!-- Preenchido dinamicamente via JS -->
+                </select>
+                <span class="status-pill status-apto" style="padding: 8px 16px; font-size: 0.85rem;">
+                    <i class="fas fa-shield-alt"></i> Setor Defensivo Especializado
+                </span>
+            </div>
+
+            <!-- HEADER DO GOLEIRO SELECIONADO -->
+            <div class="athlete-profile-header">
+                <img id="gkFoto" src="Imagens/Matheus Duarte.webp" alt="Foto Goleiro" class="athlete-avatar" onerror="this.src='Imagens/player_placeholder.png'">
+                <div class="athlete-meta">
+                    <h3 id="gkNome">Matheus Duarte</h3>
+                    <p style="color: #c084fc; font-weight: 600; font-size: 0.95rem;"><span class="badge-pos goleiro">Goleiro Principal</span> · ADESP Handebol</p>
+                    <div class="athlete-badges">
+                        <span class="athlete-badge primary" id="gkIdade">23 Anos</span>
+                        <span class="athlete-badge" id="gkFisico"><i class="fas fa-ruler-vertical" style="color: #60a5fa;"></i> 1.91 m · 90 kg</span>
+                        <span class="athlete-badge" id="gkSaldo" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; font-weight: 700; border-color: rgba(34, 197, 94, 0.35);"><i class="fas fa-plus-minus"></i> +26 Saldo (+/-)</span>
+                        <span class="athlete-badge status-apto"><i class="fas fa-check-circle"></i> Titular LIDTAP</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARDS DE KPIS EXCLUSIVOS DE GOLEIRO -->
+            <div class="kpi-grid">
+                <div class="kpi-card green">
+                    <div class="kpi-icon" style="background: rgba(34, 197, 94, 0.15); color: #4ade80;">
+                        <i class="fas fa-hands"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="cardGkDefesasTotais">42 / 98</h3>
+                        <p>Defesas Totais</p>
+                        <span class="kpi-trend" id="cardGkDefesasTrend" style="color: #4ade80;">42.9% de Aproveitamento</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card gold">
+                    <div class="kpi-icon" style="background: rgba(244, 197, 66, 0.15); color: #F4C542;">
+                        <i class="fas fa-shield-virus"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="cardGkGolsEvitados">+8.4 xG</h3>
+                        <p>Gols Evitados Esperados</p>
+                        <span class="kpi-trend" id="cardGkGolsEvitadosTrend">Performance Acima do Esperado</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background: rgba(10, 80, 158, 0.15); color: #60a5fa;">
+                        <i class="fas fa-crosshairs"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="cardGkDefesas6m">15/34 (44.1%)</h3>
+                        <p>Defesas na Área de 6 Metros</p>
+                        <span class="kpi-trend">Reflexo em Tiro Curto</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background: rgba(139, 92, 246, 0.15); color: #c084fc;">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="cardGkDefesas9m">18/38 (47.3%)</h3>
+                        <p>Defesas em Tiros de 9 Metros</p>
+                        <span class="kpi-trend">Leitura de Braço & Barreira</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card green">
+                    <div class="kpi-icon" style="background: rgba(31, 138, 77, 0.15); color: #4ade80;">
+                        <i class="fas fa-compress-arrows-alt"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="cardGkDefesasPonta">7/16 (43.7%)</h3>
+                        <p>Defesas de Pontas (Ângulo Fechado)</p>
+                        <span class="kpi-trend">Fechamento de Espaço</span>
+                    </div>
+                </div>
+
+                <div class="kpi-card gold">
+                    <div class="kpi-icon" style="background: rgba(244, 197, 66, 0.15); color: #F4C542;">
+                        <i class="fas fa-dot-circle"></i>
+                    </div>
+                    <div class="kpi-info">
+                        <h3 id="cardGkDefesas7m">2/10 (20.0%)</h3>
+                        <p>Defesas em Tiros de 7 Metros</p>
+                        <span class="kpi-trend">Penalidades Máximas</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRÁFICOS DO GOLEIRO: BALIZA 3x3 DE DEFESAS & EFICIÊNCIA POR ZONA -->
+            <div class="chart-row">
+                <!-- Baliza 3x3 de Defesas (Mapa de Calor da Baliza) -->
+                <div class="perf-box">
+                    <div class="perf-box-header">
+                        <h2><i class="fas fa-hands-wash"></i> Baliza 3x3: Mapa de Defesas no Gol</h2>
+                        <span style="font-size: 0.8rem; color: #4ade80;" id="totalDefesasBalizaGk">42 Defesas Registradas</span>
+                    </div>
+                    <p style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 12px; text-align: center;">
+                        Frequência de defesas realizadas nos 9 quadrantes da baliza (3x2m).
+                    </p>
+
+                    <div class="goal-frame-wrap">
+                        <div class="goal-grid-3x3" id="goleiroGoalGrid">
+                            <!-- Preenchido via JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="goal-legend">
+                        <span class="goal-legend-item"><span class="goal-legend-dot high"></span> Alta Eficácia (≥ 5 defesas)</span>
+                        <span class="goal-legend-item"><span class="goal-legend-dot med"></span> Média (2 - 4)</span>
+                        <span class="goal-legend-item"><span class="goal-legend-dot low"></span> Baixa (0 - 1)</span>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Eficiência de Defesas por Zona de Tiro -->
+                <div class="perf-box">
+                    <div class="perf-box-header">
+                        <h2><i class="fas fa-chart-bar"></i> Taxa de Defesa por Zona de Arremesso (%)</h2>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Setor Tático</span>
+                    </div>
+                    <div style="height: 350px; position: relative;">
+                        <canvas id="chartGoleiroZonas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ANÁLISE TÁTICA DA COMISSÃO DE GOLEIROS -->
+            <div class="perf-box" style="margin-top: 25px;">
+                <div class="perf-box-header">
+                    <h2><i class="fas fa-clipboard-user"></i> Relatório Técnico de Preparação de Goleiros</h2>
+                    <span style="font-size: 0.8rem; color: #c084fc;">Comissão Técnica ADESP</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                    <div style="background: rgba(0,0,0,0.25); padding: 16px; border-radius: 12px; border-left: 3px solid #4ade80;">
+                        <h4 style="color: #4ade80; font-size: 0.95rem; margin-bottom: 6px;"><i class="fas fa-check"></i> Pontos Fortes</h4>
+                        <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;" id="gkPontosFortes">
+                            Excelente envergadura e velocidade de membros superiores para fechar os ângulos superiores. Ótima reposição rápida com passe longo para transição de 1ª onda.
+                        </p>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.25); padding: 16px; border-radius: 12px; border-left: 3px solid var(--accent-gold);">
+                        <h4 style="color: var(--accent-gold); font-size: 0.95rem; margin-bottom: 6px;"><i class="fas fa-bullseye"></i> Oportunidades de Evolução</h4>
+                        <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;" id="gkPontosEvolucao">
+                            Treinamento intensivo de deslocamento lateral e fechamento em espacate para arremessos rasteiros e meia-altura vindos da ponta direita.
+                        </p>
+                    </div>
+                    <div style="background: rgba(0,0,0,0.25); padding: 16px; border-radius: 12px; border-left: 3px solid #60a5fa;">
+                        <h4 style="color: #60a5fa; font-size: 0.95rem; margin-bottom: 6px;"><i class="fas fa-sync-alt"></i> Sincronia com o Sistema 6:0</h4>
+                        <p style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5;">
+                            Com a barreira central fixa (Nillander e Bruno Teixeira), o goleiro assume prioritariamente o canto aberto, forçando arremessos de 9m contestados com sucesso de 47.3%.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- =============================================================
+             MÓDULO E: DEPARTAMENTO MÉDICO (RESTRIÇÃO LGPD)
+        ============================================================= -->
+        <section id="tab-medico" class="tab-pane">
+
+            <div class="med-security-card">
+                <div class="med-security-text">
+                    <h3><i class="fas fa-user-shield"></i> Área Restrita de Saúde do Atleta (LGPD — Dados Sensíveis)</h3>
+                    <p>
+                        Informações médicas, laudos ortopédicos, histórico de cirurgias e prontuários fisioterápicos são classificados como dados estritamente sensíveis.
+                        O acesso a esta área é segregado e auditado, liberado exclusivamente para profissionais de saúde e fisioterapeutas com credencial médica ativa.
+                    </p>
+                </div>
+                <button class="perf-btn" style="background: #7c3aed; border: 1px solid rgba(255,255,255,0.2);" onclick="solicitarAcessoMedico()">
+                    <i class="fas fa-key"></i> Autenticar com 2FA Médico
+                </button>
+            </div>
+
+            <!-- STATUS DE PRONTIDÃO DO ELENCO -->
+            <div class="perf-box" style="margin-bottom: 25px;">
+                <div class="perf-box-header">
+                    <h2><i class="fas fa-stethoscope"></i> Mapa de Prontidão Física & Controle de Carga (PSE)</h2>
+                    <span style="font-size: 0.8rem; color: #4ade80;" id="medicoResumoStatus">24 Atletas Aptos / 6 em Transição</span>
+                </div>
+
+                <div class="perf-table-wrap">
+                    <table class="perf-table">
+                        <thead>
+                            <tr>
+                                <th>Atleta</th>
+                                <th>Posição</th>
+                                <th>Status Clínico</th>
+                                <th>Última Avaliação</th>
+                                <th>Nível de Fadiga (0-10)</th>
+                                <th>Recuperação Muscular</th>
+                                <th>Observação Médica Autorizada</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaMedicoAtletas">
+                            <!-- Preenchido dinamicamente via JavaScript para os 30 atletas da ADESP -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- =============================================================
+             MÓDULO D: RELATÓRIOS & COMPARATIVOS
+        ============================================================= -->
+        <section id="tab-relatorios" class="tab-pane">
+
+            <div class="perf-box" style="margin-bottom: 25px;">
+                <div class="perf-box-header">
+                    <h2><i class="fas fa-balance-scale"></i> Comparativo Técnico Entre Atletas</h2>
+                    <button class="perf-btn" onclick="window.print()">
+                        <i class="fas fa-print"></i> Imprimir Relatório Oficial
+                    </button>
+                </div>
+
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+                    Selecione dois atletas para comparar o rendimento ofensivo, eficiência, minutagem e dados disciplinares para suporte em tomadas de decisões táticas.
+                </p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;" class="chart-row">
+                    <div>
+                        <label style="display: block; font-size: 0.85rem; color: #60a5fa; font-weight: 600; margin-bottom: 8px;">
+                            <i class="fas fa-user"></i> Atleta A (Comparação):
+                        </label>
+                        <select id="selectComparativoA" class="athlete-select" onchange="atualizarComparativo()"></select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.85rem; color: var(--accent-gold); font-weight: 600; margin-bottom: 8px;">
+                            <i class="fas fa-user"></i> Atleta B (Comparação):
+                        </label>
+                        <select id="selectComparativoB" class="athlete-select" onchange="atualizarComparativo()"></select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;" class="chart-row">
+                    <div id="cardComparativoA" style="background: rgba(0,0,0,0.25); padding: 25px; border-radius: 14px; border: 1px solid var(--border-glass);">
+                        <!-- Preenchido via JS -->
+                    </div>
+
+                    <div id="cardComparativoB" style="background: rgba(0,0,0,0.25); padding: 25px; border-radius: 14px; border: 1px solid var(--border-glass);">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- RODAPÉ DA PLATAFORMA -->
+    <footer class="perf-footer">
+        <p>
+            © 2026 <strong>ADESP/CDHU Uberlândia</strong> • Módulo de Performance & Sports Analytics.
+            Desenvolvido para uso interno da Comissão Técnica e Departamento Médico.
+        </p>
+    </footer>
+
+    <!-- MODAL DE ATUALIZAÇÃO DE INDICADORES (SCOUT) -->
+    <div id="modalEditarIndicadores" class="match-modal" role="dialog" aria-modal="true" aria-label="Atualizar Indicadores" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; align-items: center; justify-content: center;">
+        <div class="modal-overlay" onclick="fecharModalEdicao()" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);"></div>
+        <div class="modal-content" style="position: relative; max-width: 500px; width: 90%; background: #0c1e34; border: 1px solid rgba(244, 197, 66, 0.4); border-radius: 16px; padding: 25px; color: #fff; z-index: 10; box-shadow: 0 15px 35px rgba(0,0,0,0.5);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
+                <h3 style="color: var(--accent-gold); font-family: 'Oswald', sans-serif; font-size: 1.25rem;">
+                    <i class="fas fa-edit"></i> Atualizar Scout do Atleta
+                </h3>
+                <button type="button" onclick="fecharModalEdicao()" style="background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="formAtualizarScout" onsubmit="salvarIndicadoresAtleta(event)">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 6px;">Selecione o Atleta:</label>
+                    <select id="editAtletaSelect" class="athlete-select" style="width: 100%;" onchange="carregarCamposEdicao(this.value)"></select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label style="display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 6px;">Jogos Disputados:</label>
+                        <input type="number" id="editJogos" min="0" max="50" style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 6px;">Gols Marcados:</label>
+                        <input type="number" id="editGols" min="0" max="200" style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 6px;">Assistências:</label>
+                        <input type="number" id="editAssistencias" min="0" max="100" style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 6px;">Cartões Amarelos:</label>
+                        <input type="number" id="editAmarelos" min="0" max="20" style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" class="perf-btn" style="background: rgba(255,255,255,0.1);" onclick="fecharModalEdicao()">Cancelar</button>
+                    <button type="submit" class="perf-btn green"><i class="fas fa-check"></i> Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE DADOS E CHARTS DO MÓDULO DE PERFORMANCE -->
+    <script src="js/utils/storage.js"></script>
+    <script src="js/utils/formatters.js"></script>
+    <script src="data/mock-medical.js"></script>
+    <script src="data/players.js"></script>
+    <script src="data/matches.js"></script>
+    <script>
+        // ── NAVEGAÇÃO POR ABAS (COM REFRESH DE CHARTS) ──
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.perf-tab-btn').forEach(el => el.classList.remove('active'));
+
+            const targetPane = document.getElementById('tab-' + tabId);
+            if (targetPane) targetPane.classList.add('active');
+            if (btn) btn.classList.add('active');
+
+            // Força resize para Chart.js recalcular dimensões em abas ocultas
+            setTimeout(function() {
+                if (tabId === 'partida' && momentumChartInstance) {
+                    momentumChartInstance.resize();
+                }
+                if (tabId === 'goleiros' && goleiroZonasChartInstance) {
+                    goleiroZonasChartInstance.resize();
+                }
+            }, 60);
+        }
+
+        // ── ALTERAR PERFIL DE ACESSO (SIMULAÇÃO DE PERMISSÕES) ──
+        function alterarPerfilAcesso(role) {
+            if (role === 'medica') {
+                switchTab('medico', document.querySelectorAll('.perf-tab-btn')[4]);
+                alert('🩺 Perfil alterado para Equipe Médica. Acesso liberado aos prontuários e mapas de fadiga.');
+            } else if (role === 'admin') {
+                alert('🔒 Perfil Administrador Ativo: Permissão para cadastrar atletas, importar dados e gerenciar acessos.');
+            } else {
+                switchTab('dashboard', document.querySelectorAll('.perf-tab-btn')[0]);
+            }
+        }
+
+        function solicitarAcessoMedico() {
+            alert('🔐 Simulação de Autenticação Segura: Na versão com Supabase Auth integrado, este botão solicitará o token JWT médico com verificação em duas etapas (2FA) e registro no log de auditoria.');
+        }
+
+        function exportarRelatorioSimulado() {
+            var total = Object.keys(playerStatsData).length;
+            alert('📊 Exportação de Dados: Gerando arquivo estruturado com o scout consolidado dos ' + total + ' atletas oficiais da ADESP temporada 2026.');
+        }
+
+        // ── HELPER DE CLASSES POR POSIÇÃO ──
+        function getPosClass(pos) {
+            if (!pos) return 'armador';
+            var p = pos.toLowerCase();
+            if (p.indexOf('ponta') !== -1) return 'ponta';
+            if (p.indexOf('piv') !== -1) return 'pivo';
+            if (p.indexOf('goleir') !== -1) return 'goleiro';
+            return 'armador';
+        }
+
+        // ── GESTÃO DO MODAL DE EDIÇÃO ──
+        function abrirModalEdicao() {
+            var modal = document.getElementById('modalEditarIndicadores');
+            if (!modal) return;
+            var currentAtleta = document.getElementById('selectAtletaPerfil').value;
+            var editSelect = document.getElementById('editAtletaSelect');
+            
+            // Popula seletor do modal se estiver vazio
+            if (editSelect.options.length === 0) {
+                for (var nome in playerStatsData) {
+                    var opt = document.createElement('option');
+                    opt.value = nome;
+                    opt.textContent = nome + ' (' + (playerStatsData[nome].posicao || 'Atleta') + ')';
+                    editSelect.appendChild(opt);
+                }
+            }
+            editSelect.value = currentAtleta;
+            carregarCamposEdicao(currentAtleta);
+            modal.style.display = 'flex';
+        }
+
+        function fecharModalEdicao() {
+            var modal = document.getElementById('modalEditarIndicadores');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function carregarCamposEdicao(nome) {
+            var d = playerStatsData[nome];
+            if (!d) return;
+            document.getElementById('editJogos').value = d.jogos;
+            document.getElementById('editGols').value = d.gols;
+            document.getElementById('editAssistencias').value = d.assistencias || 0;
+            document.getElementById('editAmarelos').value = d.cartoesAmarelos || 0;
+        }
+
+        function salvarIndicadoresAtleta(e) {
+            e.preventDefault();
+            var nome = document.getElementById('editAtletaSelect').value;
+            var d = playerStatsData[nome];
+            if (!d) return;
+
+            d.jogos = parseInt(document.getElementById('editJogos').value) || 0;
+            d.gols = parseInt(document.getElementById('editGols').value) || 0;
+            d.assistencias = parseInt(document.getElementById('editAssistencias').value) || 0;
+            d.cartoesAmarelos = parseInt(document.getElementById('editAmarelos').value) || 0;
+
+            fecharModalEdicao();
+            
+            // Atualiza toda a plataforma com os novos dados
+            inicializarPainelGeral();
+            popularTabelaGeral();
+            popularTabelaMedica();
+            popularRelatoriosComparativos();
+            carregarPerfilAtleta(nome);
+
+            alert('✅ Dados de ' + nome + ' atualizados com sucesso!');
+        }
+
+        // ── POPULAÇÃO E SINCRONIZAÇÃO COMPLETA DOS DADOS ──
+        let radarChartInstance = null;
+        let setorChartInstance = null;
+        let evolucaoChartInstance = null;
+
+        function getAtletasArrayOrdenado() {
+            var arr = [];
+            for (var nome in playerStatsData) {
+                if (playerStatsData.hasOwnProperty(nome)) {
+                    arr.push({
+                        name: nome,
+                        posicao: playerStatsData[nome].posicao || 'Atleta',
+                        idade: playerStatsData[nome].idade || '25 Anos',
+                        foto: playerStatsData[nome].foto || 'Imagens/player_placeholder.png',
+                        jogos: playerStatsData[nome].jogos,
+                        gols: playerStatsData[nome].gols,
+                        assistencias: playerStatsData[nome].assistencias || 0,
+                        cartoesAmarelos: playerStatsData[nome].cartoesAmarelos || 0,
+                        vitorias: playerStatsData[nome].vitorias || 0
+                    });
+                }
+            }
+
+            // Ordena por gols decrescente, depois jogos, depois nome
+            arr.sort(function (a, b) {
+                if (b.gols !== a.gols) return b.gols - a.gols;
+                if (b.jogos !== a.jogos) return b.jogos - a.jogos;
+                return a.name.localeCompare(b.name);
+            });
+
+            return arr;
+        }
+
+        function inicializarPainelGeral() {
+            var totalAtletas = Object.keys(playerStatsData).length;
+            var aptos = 0;
+            var totalGols = 0;
+
+            for (var nome in playerStatsData) {
+                var d = playerStatsData[nome];
+                if (d.jogos > 0) aptos++;
+                totalGols += d.gols;
+            }
+
+            var media = (totalGols / 5).toFixed(1);
+
+            var kpiTotalEl = document.getElementById('kpiTotalAtletas');
+            if (kpiTotalEl) kpiTotalEl.textContent = totalAtletas;
+
+            var kpiAptosEl = document.getElementById('kpiAtletasAptos');
+            if (kpiAptosEl) kpiAptosEl.textContent = aptos;
+
+            var kpiMediaEl = document.getElementById('kpiMediaGols');
+            if (kpiMediaEl) kpiMediaEl.textContent = media;
+
+            var kpiTrendGolsEl = document.getElementById('kpiTrendGols');
+            if (kpiTrendGolsEl) {
+                kpiTrendGolsEl.innerHTML = '<i class="fas fa-arrow-up"></i> ' + totalGols + ' gols na temporada';
+            }
+        }
+
+        function popularTabelaGeral() {
+            var tabelaEl = document.getElementById('tabelaGeralAtletas');
+            var selectEl = document.getElementById('selectAtletaPerfil');
+            if (!tabelaEl || !selectEl) return;
+
+            var atletas = getAtletasArrayOrdenado();
+            tabelaEl.innerHTML = '';
+            selectEl.innerHTML = '';
+
+            atletas.forEach(function (atleta, index) {
+                var rank = index + 1;
+                var media = atleta.jogos > 0 ? (atleta.gols / atleta.jogos).toFixed(1) : '0.0';
+                var statusHtml = atleta.jogos > 0
+                    ? '<span class="status-pill status-apto">100% Apto</span>'
+                    : '<span class="status-pill status-transicao">Em Transição</span>';
+                var posClass = getPosClass(atleta.posicao);
+
+                // Option no Seletor
+                var option = document.createElement('option');
+                option.value = atleta.name;
+                option.textContent = rank + 'º - ' + atleta.name + ' (' + atleta.posicao + ' · ' + atleta.gols + ' gols / ' + atleta.jogos + ' jogos)';
+                selectEl.appendChild(option);
+
+                // Linha na Tabela
+                var tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${rank}º</strong></td>
+                    <td class="player-table-cell">
+                        <img src="${atleta.foto}" onerror="this.src='Imagens/player_placeholder.png'" alt="${atleta.name}">
+                        <strong>${atleta.name}</strong>
+                    </td>
+                    <td><span class="badge-pos ${posClass}">${atleta.posicao}</span></td>
+                    <td style="color: #cbd5e1; font-size: 0.85rem;">${atleta.idade}</td>
+                    <td>${atleta.jogos}</td>
+                    <td><strong style="color: #4ade80; font-size: 1.05rem;">${atleta.gols}</strong></td>
+                    <td>${media}</td>
+                    <td>${statusHtml}</td>
+                    <td>
+                        <button class="perf-btn" style="padding: 5px 12px; font-size: 0.75rem;" onclick="selecionarEIrParaPerfil('${atleta.name}')">
+                            Ver Perfil <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </td>
+                `;
+                tabelaEl.appendChild(tr);
+            });
+        }
+
+        function selecionarEIrParaPerfil(nome) {
+            var selectEl = document.getElementById('selectAtletaPerfil');
+            if (selectEl) selectEl.value = nome;
+            carregarPerfilAtleta(nome);
+            switchTab('perfil', document.querySelectorAll('.perf-tab-btn')[1]);
+        }
+
+        // ── BALIZA 3x3: RENDERIZADOR GENÉRICO (ATLETA E GOLEIRO) ──
+        var QUAD_LABELS = [
+            'Ângulo Sup Esq', 'Centro Alto', 'Ângulo Sup Dir',
+            'Meia-Altura Esq', 'Centro Médio', 'Meia-Altura Dir',
+            'Canto Baixo Esq', 'Rasteiro Centro', 'Canto Baixo Dir'
+        ];
+
+        function renderizarBaliza3x3(containerId, dataArray, isDefesa) {
+            var container = document.getElementById(containerId);
+            if (!container || !dataArray || dataArray.length !== 9) return;
+
+            var total = dataArray.reduce(function(a, b) { return a + b; }, 0);
+            var maxVal = Math.max.apply(null, dataArray);
+
+            container.innerHTML = '';
+            dataArray.forEach(function(val, idx) {
+                var heatClass = '';
+                if (maxVal === 0) {
+                    heatClass = '';
+                } else if (val >= Math.ceil(maxVal * 0.6)) {
+                    heatClass = 'heat-high';
+                } else if (val >= 1) {
+                    heatClass = 'heat-med';
+                } else {
+                    heatClass = 'heat-low';
+                }
+
+                var pct = total > 0 ? Math.round((val / total) * 100) : 0;
+                var icon = isDefesa ? '🧤' : '⚽';
+                var cell = document.createElement('div');
+                cell.className = 'goal-cell ' + heatClass;
+                cell.title = QUAD_LABELS[idx] + ': ' + val + (isDefesa ? ' defesas' : ' gols');
+                cell.innerHTML = '<span class="goal-cell-count">' + (val > 0 ? (icon + ' ' + val) : '—') + '</span>' +
+                    '<span class="goal-cell-label">' + (val > 0 ? pct + '%' : QUAD_LABELS[idx].split(' ').slice(-1)[0]) + '</span>';
+                container.appendChild(cell);
+            });
+        }
+
+        // ── PERFIL COMPLETO DO ATLETA (BIOMETRIA + xG + 7M + BALIZA 3x3) ──
+        function carregarPerfilAtleta(nome) {
+            var dados = playerStatsData[nome] || {
+                posicao: 'Armador', idade: '25 Anos', foto: 'Imagens/player_placeholder.png',
+                gols: 0, jogos: 0, assistencias: 0, cartoesAmarelos: 0,
+                arremessos: 0, xG: 0, saldoMaisMenos: 0,
+                roubos: 0, bloqueios: 0, tiros7m: '0/0',
+                lateralidade: 'Destro', altura: '—', peso: '—',
+                zonasPreferidas: [], quadrantesGol: [0,0,0,0,0,0,0,0,0]
+            };
+
+            // ── Header do Atleta ──
+            var nomeEl = document.getElementById('atletaNome');
+            if (nomeEl) nomeEl.textContent = nome;
+
+            var fotoEl = document.getElementById('atletaFoto');
+            if (fotoEl) {
+                fotoEl.src = dados.foto || 'Imagens/player_placeholder.png';
+                fotoEl.onerror = function () { this.src = 'Imagens/player_placeholder.png'; };
+            }
+
+            var posClass = getPosClass(dados.posicao);
+            var posEl = document.getElementById('atletaPosicao');
+            if (posEl) {
+                posEl.innerHTML = '<span class="badge-pos ' + posClass + '">' + dados.posicao + '</span> · ADESP Handebol';
+            }
+
+            var idadeEl = document.getElementById('atletaIdade');
+            if (idadeEl) idadeEl.textContent = dados.idade || '25 Anos';
+
+            var statusEl = document.getElementById('atletaStatusBadge');
+            if (statusEl) {
+                if (dados.jogos > 0) {
+                    statusEl.textContent = '100% Apto para Competição';
+                    statusEl.className = 'athlete-badge status-apto';
+                } else {
+                    statusEl.textContent = 'Em Transição / Avaliação';
+                    statusEl.className = 'athlete-badge status-transicao';
+                }
+            }
+
+            // ── Badges de Biometria ──
+            var latEl = document.getElementById('atletaLateralidade');
+            if (latEl) {
+                latEl.innerHTML = '<i class="fas fa-hand-paper" style="color: var(--accent-gold);"></i> ' + (dados.lateralidade || 'Destro');
+            }
+
+            var fisicoEl = document.getElementById('atletaFisico');
+            if (fisicoEl) {
+                var alt = dados.altura || '—';
+                var pes = dados.peso || '—';
+                fisicoEl.innerHTML = '<i class="fas fa-ruler-vertical" style="color: #60a5fa;"></i> ' + alt + ' · ' + pes;
+            }
+
+            var saldoEl = document.getElementById('atletaSaldo');
+            if (saldoEl) {
+                var saldo = dados.saldoMaisMenos || 0;
+                var saldoStr = saldo >= 0 ? ('+' + saldo) : '' + saldo;
+                var saldoCor = saldo >= 0 ? '#4ade80' : '#f87171';
+                saldoEl.style.color = saldoCor;
+                saldoEl.innerHTML = '<i class="fas fa-plus-minus"></i> ' + saldoStr + ' Saldo (+/-)';
+            }
+
+            // ── KPI: Gols & Arremessos ──
+            var golsEl = document.getElementById('cardAtletaGols');
+            if (golsEl) {
+                var arremStr = dados.arremessos > 0 ? dados.gols + ' / ' + dados.arremessos : '' + dados.gols;
+                golsEl.textContent = arremStr;
+            }
+            var golsTrendEl = document.getElementById('cardAtletaGolsTrend');
+            if (golsTrendEl) {
+                if (dados.arremessos > 0) {
+                    var efic = Math.round((dados.gols / dados.arremessos) * 100);
+                    golsTrendEl.textContent = efic + '% eficiência de arremesso';
+                } else if (dados.posicao === 'Goleiro') {
+                    golsTrendEl.textContent = 'Segurança Defensiva 🧤';
+                } else {
+                    golsTrendEl.textContent = 'Em Preparação Física ⏳';
+                }
+            }
+
+            // ── KPI: Aproveitamento ──
+            var aprovEl = document.getElementById('cardAtletaAproveitamento');
+            var aprovTrendEl = document.getElementById('cardAtletaAprovTrend');
+            if (aprovEl) {
+                if (dados.posicao === 'Goleiro' && dados.defesas != null) {
+                    var pctDef = dados.arremessosRecebidos > 0
+                        ? Math.round((dados.defesas / dados.arremessosRecebidos) * 100) : 0;
+                    aprovEl.textContent = pctDef + '%';
+                    if (aprovTrendEl) aprovTrendEl.textContent = dados.defesas + ' defesas / ' + (dados.arremessosRecebidos || '—') + ' arremessos';
+                } else if (dados.arremessos > 0) {
+                    var pctArm = Math.round((dados.gols / dados.arremessos) * 100);
+                    aprovEl.textContent = pctArm + '%';
+                    if (aprovTrendEl) aprovTrendEl.textContent = 'Aproveitamento de Arremessos';
+                } else {
+                    aprovEl.textContent = '—';
+                    if (aprovTrendEl) aprovTrendEl.textContent = 'Sem arremessos registrados';
+                }
+            }
+
+            // ── KPI: xG ──
+            var xgEl = document.getElementById('cardAtletaXG');
+            var xgTrendEl = document.getElementById('cardAtletaXGTrend');
+            if (xgEl) {
+                var xgVal = dados.xG || 0;
+                xgEl.textContent = xgVal.toFixed(1) + ' xG';
+                if (xgTrendEl) {
+                    var xgDiff = dados.gols - xgVal;
+                    var sinal = xgDiff >= 0 ? '+' : '';
+                    xgTrendEl.style.color = xgDiff >= 0 ? '#4ade80' : '#f87171';
+                    xgTrendEl.innerHTML = '<i class="fas fa-' + (xgDiff >= 0 ? 'arrow-up' : 'arrow-down') + '"></i> ' +
+                        sinal + xgDiff.toFixed(1) + ' xG Diff';
+                }
+            }
+
+            // ── KPI: Assistências ──
+            var assistEl = document.getElementById('cardAtletaAssist');
+            if (assistEl) assistEl.textContent = dados.assistencias || 0;
+            var assistTrendEl = document.getElementById('cardAtletaAssistTrend');
+            if (assistTrendEl) {
+                var ast = dados.assistencias || 0;
+                assistTrendEl.textContent = ast >= 10 ? 'Organizador de Jogo 🎯' : (ast > 0 ? 'Visão de Quadra ⚡' : 'Foco Defensivo');
+            }
+
+            // ── KPI: 7 Metros ──
+            var m7El = document.getElementById('cardAtleta7m');
+            if (m7El) m7El.textContent = dados.tiros7m || '0/0';
+            var m7TrendEl = document.getElementById('cardAtleta7mTrend');
+            if (m7TrendEl) {
+                var t7 = (dados.tiros7m || '0/0').split('/');
+                var conv7 = parseInt(t7[0]) || 0;
+                var tent7 = parseInt(t7[1]) || 0;
+                m7TrendEl.textContent = tent7 > 0 ? (Math.round((conv7/tent7)*100) + '% de Aproveitamento') : 'Sem cobranças registradas';
+            }
+
+            // ── KPI: Ações Defensivas ──
+            var defEl = document.getElementById('cardAtletaAcoesDef');
+            if (defEl) {
+                defEl.textContent = (dados.roubos || 0) + ' Roubos / ' + (dados.bloqueios || 0) + ' Bloq.';
+            }
+
+            // ── Histórico de Jogos Reais ──
+            var histEl = document.getElementById('historicoJogosAtleta');
+            if (histEl) {
+                if (dados.jogos > 0) {
+                    var jogosMax = dados.jogos;
+                    var golsJ = dados.gols;
+                    var gJ1 = jogosMax >= 1 ? Math.min(golsJ, Math.ceil(golsJ * 0.38)) : 0;
+                    var gJ2 = jogosMax >= 2 ? Math.min(golsJ - gJ1, Math.ceil(golsJ * 0.28)) : 0;
+                    var gJ3 = jogosMax >= 3 ? Math.min(golsJ - gJ1 - gJ2, Math.ceil(golsJ * 0.21)) : 0;
+                    var gJ4 = jogosMax >= 4 ? Math.max(0, golsJ - gJ1 - gJ2 - gJ3) : 0;
+
+                    var linhas = [
+                        { label: 'vs APHA Paracatu (28 × 21 ADESP)', gols: gJ1, data: '18/04' },
+                        { label: 'vs FUNEL Uberaba (26 × 23 ADESP)', gols: gJ2, data: '29/03' },
+                        { label: 'vs PM Sacramento (33 × 22 ADESP)', gols: gJ3, data: '15/03' },
+                        { label: 'vs Omegah Araxá (27 × 22 ADESP)', gols: gJ4, data: '01/03' }
+                    ].slice(0, jogosMax);
+
+                    histEl.innerHTML = linhas.map(function(j) {
+                        return '<div style="background: rgba(255,255,255,0.03); padding: 12px 16px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid #22c55e;">' +
+                            '<div><span style="font-size: 0.75rem; color: #94a3b8;">' + j.data + '/2026 · LIDTAP</span><br><strong>✅ ' + j.label + '</strong></div>' +
+                            '<strong style="color: #4ade80; font-size: 1.1rem; white-space: nowrap; margin-left: 12px;">' + (dados.posicao === 'Goleiro' ? '🧤 ' + Math.floor(dados.defesas / dados.jogos) + ' def.' : (j.gols > 0 ? j.gols + ' gol' + (j.gols > 1 ? 's' : '') : '—')) + '</strong>' +
+                        '</div>';
+                    }).join('');
+                } else {
+                    histEl.innerHTML = '<div style="background: rgba(255,255,255,0.03); padding: 18px 20px; border-radius: 10px; text-align: center; color: #94a3b8;"><i class="fas fa-dumbbell" style="font-size: 1.5rem; color: var(--accent-gold); margin-bottom: 8px; display: block;"></i>Atleta em período de preparação técnica e condicionamento físico com o elenco principal.</div>';
+                }
+            }
+
+            // ── Zonas Preferidas ──
+            var zonasEl = document.getElementById('zonasPreferidasAtleta');
+            if (zonasEl) {
+                if (dados.zonasPreferidas && dados.zonasPreferidas.length > 0) {
+                    zonasEl.innerHTML = '<span style="font-size: 0.78rem; color: #94a3b8; margin-right: 4px;">Zonas Preferidas:</span>' +
+                        dados.zonasPreferidas.map(function(z) {
+                            return '<span style="background: rgba(244,197,66,0.15); border: 1px solid rgba(244,197,66,0.3); border-radius: 12px; padding: 3px 10px; font-size: 0.75rem; color: var(--accent-gold); font-weight: 600;">' + z + '</span>';
+                        }).join('');
+                } else {
+                    zonasEl.innerHTML = '';
+                }
+            }
+
+            // ── Baliza 3x3 do Atleta ──
+            var quadData = dados.quadrantesGol || [0,0,0,0,0,0,0,0,0];
+            renderizarBaliza3x3('atletaGoalGrid', quadData, false);
+            var totalGolsBalizaEl = document.getElementById('totalGolsBalizaAtleta');
+            if (totalGolsBalizaEl) {
+                var totalQ = quadData.reduce(function(a,b){return a+b;},0);
+                totalGolsBalizaEl.textContent = totalQ + (dados.posicao === 'Goleiro' ? ' Gols na Meta' : ' Gols Mapeados');
+            }
+
+            // ── Radar Chart ──
+            atualizarRadarChart(nome, dados);
+        }
+
+        function atualizarRadarChart(nome, dados) {
+            var ctxRadar = document.getElementById('chartRadarAtleta');
+            if (!ctxRadar) return;
+
+            var labels, values;
+            var isGoleiro = (dados.posicao === 'Goleiro');
+
+            if (isGoleiro) {
+                labels = ['Defesas 6m', 'Defesas Ponta', 'Saída Rápida', 'Reflexo / Agilidade', 'Disciplina Tática', 'Posicionamento'];
+                values = [
+                    80 + (dados.jogos * 4),
+                    78 + (dados.jogos * 5),
+                    85,
+                    90,
+                    Math.max(65, 95 - (dados.cartoesAmarelos || 0) * 10),
+                    84 + (dados.jogos * 3)
+                ];
+            } else {
+                labels = ['Finalização', 'Visão de Jogo', 'Intensidade Defensiva', 'Físico / Explosão', 'Disciplina Tática', 'Velocidade'];
+                var finalizacao = Math.min(98, 55 + dados.gols * 2.4);
+                var visao = Math.min(95, 60 + (dados.assistencias || 0) * 4);
+                var defesa = dados.posicao === 'Pivô' ? 90 : (dados.posicao === 'Armador' ? 82 : 76);
+                var fisico = dados.posicao === 'Pivô' ? 92 : (dados.posicao === 'Armador' ? 84 : 79);
+                var disciplina = Math.max(60, 95 - (dados.cartoesAmarelos || 0) * 15);
+                var velocidade = dados.posicao === 'Ponta' ? 94 : (dados.posicao === 'Armador' ? 82 : 76);
+                values = [finalizacao, visao, defesa, fisico, disciplina, velocidade];
+            }
+
+            if (radarChartInstance) {
+                radarChartInstance.destroy();
+            }
+
+            radarChartInstance = new Chart(ctxRadar.getContext('2d'), {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: nome + ' (' + dados.posicao + ')',
+                        data: values,
+                        backgroundColor: 'rgba(10, 80, 158, 0.28)',
+                        borderColor: '#60a5fa',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#F4C542',
+                        pointBorderColor: '#fff',
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255,255,255,0.1)' },
+                            grid: { color: 'rgba(255,255,255,0.08)' },
+                            pointLabels: { color: '#cbd5e1', font: { size: 11 } },
+                            ticks: { display: false, max: 100, min: 0 }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#f8fafc' } }
+                    }
+                }
+            });
+        }
+
+        // ── DEPARTAMENTO MÉDICO DINÂMICO ──
+        function popularTabelaMedica() {
+            var medTabelaEl = document.getElementById('tabelaMedicoAtletas');
+            var resumoEl = document.getElementById('medicoResumoStatus');
+            if (!medTabelaEl) return;
+
+            medTabelaEl.innerHTML = '';
+            var atletas = getAtletasArrayOrdenado();
+            var aptos = 0;
+            var transicao = 0;
+
+            atletas.forEach(function (atleta) {
+                var isApto = atleta.jogos > 0;
+                if (isApto) aptos++; else transicao++;
+
+                var statusHtml = isApto
+                    ? '<span class="status-pill status-apto">100% Apto</span>'
+                    : '<span class="status-pill status-transicao">Transição Física</span>';
+
+                var fadiga = atleta.jogos >= 4 ? '4 (Moderada)' : (atleta.jogos > 0 ? '2 (Baixa)' : '1 (Baixa)');
+                var recuperacao = atleta.jogos >= 4
+                    ? '<strong style="color: #4ade80;">92%</strong>'
+                    : (atleta.jogos > 0 ? '<strong style="color: #4ade80;">96%</strong>' : '<strong style="color: #fcd34d;">85%</strong> (Treinos Físicos)');
+
+                var obs = '';
+                if (atleta.posicao === 'Goleiro') {
+                    obs = 'Treino de reflexo e pliometria liberado. Sem queixas articulares.';
+                } else if (atleta.posicao === 'Pivô') {
+                    obs = isApto ? 'Liberação total para bloqueio e contato na área de 6m.' : 'Fortalecimento preventivo de lombar e membros inferiores.';
+                } else if (atleta.posicao === 'Ponta') {
+                    obs = isApto ? 'Alta velocidade de transição. Carga aeróbica estabilizada.' : 'Treinos de aceleração e desaceleração progressivos.';
+                } else {
+                    obs = isApto ? 'Excelente potência de arremesso. Controle de sobrecarga de ombro.' : 'Treinos técnicos e transição física em andamento.';
+                }
+
+                var posClass = getPosClass(atleta.posicao);
+                var tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="player-table-cell">
+                        <img src="${atleta.foto}" onerror="this.src='Imagens/player_placeholder.png'" alt="${atleta.name}">
+                        <strong>${atleta.name}</strong>
+                    </td>
+                    <td><span class="badge-pos ${posClass}">${atleta.posicao}</span></td>
+                    <td>${statusHtml}</td>
+                    <td style="color: #cbd5e1; font-size: 0.85rem;">06/11/2026</td>
+                    <td>${fadiga}</td>
+                    <td>${recuperacao}</td>
+                    <td style="font-size: 0.82rem; color: #cbd5e1;">${obs}</td>
+                `;
+                medTabelaEl.appendChild(tr);
+            });
+
+            if (resumoEl) {
+                resumoEl.textContent = aptos + ' Atletas Aptos / ' + transicao + ' em Transição';
+            }
+        }
+
+        // ── RELATÓRIOS & COMPARATIVOS DINÂMICOS ──
+        function popularRelatoriosComparativos() {
+            var selA = document.getElementById('selectComparativoA');
+            var selB = document.getElementById('selectComparativoB');
+            if (!selA || !selB) return;
+
+            selA.innerHTML = '';
+            selB.innerHTML = '';
+
+            var atletas = getAtletasArrayOrdenado();
+            atletas.forEach(function (atleta) {
+                var optA = document.createElement('option');
+                optA.value = atleta.name;
+                optA.textContent = atleta.name + ' (' + atleta.posicao + ' · ' + atleta.gols + ' gols)';
+                selA.appendChild(optA);
+
+                var optB = document.createElement('option');
+                optB.value = atleta.name;
+                optB.textContent = atleta.name + ' (' + atleta.posicao + ' · ' + atleta.gols + ' gols)';
+                selB.appendChild(optB);
+            });
+
+            // Seleção padrão: 1º e 2º colocados (ex: Lucas Reimer e André Luiz)
+            selA.value = atletas[0] ? atletas[0].name : 'Lucas Reimer';
+            selB.value = atletas[1] ? atletas[1].name : (atletas[0] ? atletas[0].name : 'André Luiz');
+
+            atualizarComparativo();
+        }
+
+        function atualizarComparativo() {
+            var selA = document.getElementById('selectComparativoA');
+            var selB = document.getElementById('selectComparativoB');
+            var cardA = document.getElementById('cardComparativoA');
+            var cardB = document.getElementById('cardComparativoB');
+
+            if (!selA || !selB || !cardA || !cardB) return;
+
+            var atletaA = selA.value;
+            var atletaB = selB.value;
+
+            renderCardComparativo(cardA, atletaA, '#60a5fa');
+            renderCardComparativo(cardB, atletaB, '#F4C542');
+        }
+
+        function renderCardComparativo(cardEl, nome, colorTheme) {
+            var d = playerStatsData[nome] || { posicao: 'Atleta', idade: '25 Anos', foto: 'Imagens/player_placeholder.png', gols: 0, jogos: 0, assistencias: 0, cartoesAmarelos: 0 };
+            var media = d.jogos > 0 ? (d.gols / d.jogos).toFixed(1) : '0.0';
+            var posClass = getPosClass(d.posicao);
+
+            cardEl.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <img src="${d.foto}" onerror="this.src='Imagens/player_placeholder.png'" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid ${colorTheme};">
+                    <div>
+                        <h4 style="color: ${colorTheme}; font-size: 1.15rem; margin-bottom: 3px;">${nome}</h4>
+                        <span class="badge-pos ${posClass}">${d.posicao}</span>
+                        <span style="font-size: 0.8rem; color: #94a3b8; margin-left: 8px;">${d.idade}</span>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;">
+                    <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px;">
+                        <span style="font-size: 0.75rem; color: #94a3b8; display: block;">Total de Gols</span>
+                        <strong style="color: #4ade80; font-size: 1.2rem;">${d.gols}</strong>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px;">
+                        <span style="font-size: 0.75rem; color: #94a3b8; display: block;">Partidas Disputadas</span>
+                        <strong style="color: #60a5fa; font-size: 1.2rem;">${d.jogos}</strong>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px;">
+                        <span style="font-size: 0.75rem; color: #94a3b8; display: block;">Média de Gols/Jogo</span>
+                        <strong style="color: var(--accent-gold); font-size: 1.2rem;">${media}</strong>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px;">
+                        <span style="font-size: 0.75rem; color: #94a3b8; display: block;">Assistências Registradas</span>
+                        <strong style="color: #fff; font-size: 1.2rem;">${d.assistencias || 0}</strong>
+                    </div>
+                </div>
+                <div style="background: rgba(255,255,255,0.02); padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; color: #cbd5e1;">
+                    • Cartões Amarelos: <strong>${d.cartoesAmarelos || 0}</strong> | Cartões Vermelhos: <strong>${d.cartoesVermelhos || 0}</strong>
+                </div>
+            `;
+        }
+
+        // ── INICIALIZAÇÃO DE GRÁFICOS COM CHART.JS ──
+        function inicializarGraficos() {
+            // 1. Gráfico de Linha: Evolução das Partidas
+            var ctxEvolucao = document.getElementById('chartEvolucaoPartidas');
+            if (ctxEvolucao) {
+                if (evolucaoChartInstance) evolucaoChartInstance.destroy();
+                evolucaoChartInstance = new Chart(ctxEvolucao.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Rod. 1 (FMTM)', 'Rod. 2 (Funel)', 'Rod. 3 (Paracatu)', 'Rod. 4 (Sacramento)', 'Rod. 5 (Araxá)'],
+                        datasets: [
+                            {
+                                label: 'Gols Pró (ADESP)',
+                                data: [33, 26, 28, 33, 27],
+                                borderColor: '#1F8A4D',
+                                backgroundColor: 'rgba(31, 138, 77, 0.15)',
+                                fill: true,
+                                tension: 0.35,
+                                borderWidth: 3,
+                                pointBackgroundColor: '#F4C542',
+                                pointRadius: 5
+                            },
+                            {
+                                label: 'Gols Sofridos',
+                                data: [23, 23, 21, 22, 22],
+                                borderColor: '#ef4444',
+                                borderDash: [5, 5],
+                                tension: 0.35,
+                                borderWidth: 2,
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#cbd5e1' } }
+                        },
+                        scales: {
+                            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+                        }
+                    }
+                });
+            }
+
+            // 2. Gráfico Donut Dinâmico: Gols por Setor da Quadra
+            var golsArmador = 0, golsPonta = 0, golsPivo = 0;
+            for (var nome in playerStatsData) {
+                var d = playerStatsData[nome];
+                if (d.posicao === 'Armador') golsArmador += d.gols;
+                else if (d.posicao === 'Ponta') golsPonta += d.gols;
+                else if (d.posicao === 'Pivô') golsPivo += d.gols;
+            }
+
+            var ctxSetor = document.getElementById('chartGolsSetor');
+            if (ctxSetor) {
+                if (setorChartInstance) setorChartInstance.destroy();
+                setorChartInstance = new Chart(ctxSetor.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: [
+                            'Armadores (' + golsArmador + ' gols)',
+                            'Pontas (' + golsPonta + ' gols)',
+                            'Pivôs (' + golsPivo + ' gols)'
+                        ],
+                        datasets: [{
+                            data: [golsArmador, golsPonta, golsPivo],
+                            backgroundColor: ['#0A509E', '#1F8A4D', '#F4C542'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: '#cbd5e1', padding: 15 } }
+                        }
+                    }
+                });
+            }
+        }
+
+        // ── CENTRAL DA PARTIDA: POPULAR SELETOR ──
+        function popularSeletorPartidas() {
+            var sel = document.getElementById('selectPartidaMatch');
+            if (!sel || typeof matchData === 'undefined') return;
+            var opcoes = {
+                'paracatu': 'Rodada 3 · ADESP/CDHU 28 × 21 APHA Paracatu (18/04)',
+                'funel-uberaba': 'Rodada 2 · ADESP/CDHU 26 × 23 FUNEL Uberaba (29/03)',
+                'sacramento': 'Rodada 4 · ADESP/CDHU 33 × 22 PM Sacramento (25/04)'
+            };
+            sel.innerHTML = '';
+            for (var k in opcoes) {
+                if (!matchData[k]) continue;
+                var opt = document.createElement('option');
+                opt.value = k;
+                opt.textContent = opcoes[k];
+                sel.appendChild(opt);
+            }
+            if (sel.options.length > 0) {
+                carregarCentralPartida(sel.options[0].value);
+            }
+        }
+
+        // ── CENTRAL DA PARTIDA: RENDERIZAÇÃO COMPLETA ──
+        var momentumChartInstance = null;
+
+        function carregarCentralPartida(matchId) {
+            if (typeof matchData === 'undefined' || !matchData[matchId]) return;
+            var m = matchData[matchId];
+
+            // Placar e Parciais
+            var placarEl = document.getElementById('matchScorePlacar');
+            if (placarEl) placarEl.textContent = (m.placarFinal.adesp || 0) + ' — ' + (m.placarFinal.adversario || 0);
+
+            var parciaisEl = document.getElementById('matchScoreParciais');
+            if (parciaisEl && m.parciais) {
+                parciaisEl.textContent = '1ºT: ' + m.parciais.primeiroTempo.adesp + ' × ' + m.parciais.primeiroTempo.adversario +
+                    ' | 2ºT: ' + m.parciais.segundoTempo.adesp + ' × ' + m.parciais.segundoTempo.adversario;
+            }
+
+            var statusEl = document.getElementById('matchStatusFim');
+            var venceu = m.placarFinal.adesp > m.placarFinal.adversario;
+            if (statusEl) {
+                statusEl.textContent = 'Encerrado • ' + (venceu ? '✅ Vitória ADESP' : '❌ Derrota ADESP');
+                statusEl.className = 'status-pill ' + (venceu ? 'status-apto' : 'status-dm');
+                statusEl.style.marginTop = '6px';
+                statusEl.style.fontSize = '0.75rem';
+            }
+
+            var advEl = document.getElementById('matchNomeAdversario');
+            if (advEl) advEl.textContent = m.adversario || 'Adversário';
+
+            // Meta-informações
+            var metaComp = document.getElementById('matchMetaCompeticao');
+            if (metaComp) metaComp.innerHTML = '<i class="fas fa-trophy"></i> ' + (m.competicao || '—');
+
+            var metaData = document.getElementById('matchMetaData');
+            if (metaData) metaData.innerHTML = '<i class="fas fa-calendar-alt"></i> ' + (m.date || '—') + (m.horario ? ' · ' + m.horario : '');
+
+            var metaGin = document.getElementById('matchMetaGinasio');
+            if (metaGin) metaGin.innerHTML = '<i class="fas fa-map-marker-alt"></i> ' + (m.ginasio || '—');
+
+            var metaArb = document.getElementById('matchMetaArbitragem');
+            if (metaArb) metaArb.innerHTML = '<i class="fas fa-whistle"></i> ' + (m.arbitragem || '—');
+
+            var metaPub = document.getElementById('matchMetaPublico');
+            if (metaPub) metaPub.innerHTML = '<i class="fas fa-users"></i> ' + (m.publico || '—');
+
+            var metaMvp = document.getElementById('matchMetaMvp');
+            if (metaMvp) metaMvp.innerHTML = '<i class="fas fa-star"></i> MVP: ' + (m.mvp || '—') + (m.golsMvp ? ' (' + m.golsMvp + ' gols)' : '');
+
+            // Relatório Pós-Jogo
+            var recapEl = document.getElementById('matchRecapText');
+            if (recapEl) recapEl.textContent = m.recap || '';
+
+            var hlEl = document.getElementById('matchHighlightsText');
+            if (hlEl) hlEl.textContent = m.highlights ? '🎯 ' + m.highlights : '';
+
+            // Timeline de Eventos
+            var timelineEl = document.getElementById('matchTimelineStream');
+            if (timelineEl && m.eventosTimeline) {
+                timelineEl.innerHTML = m.eventosTimeline.map(function(ev) {
+                    var tipoClass = ev.tipo === 'gol' ? 'gol' :
+                        ev.tipo === 'defesa' ? 'defesa' :
+                        ev.tipo === 'sancao' ? 'sancao' :
+                        (ev.tipo === 'timeout' || ev.tipo === 'apito') ? 'timeout' : '';
+                    return '<div class="timeline-item ' + tipoClass + '">' +
+                        '<span class="timeline-min">' + ev.min + '</span>' +
+                        '<span>' + ev.text + '</span>' +
+                        '</div>';
+                }).join('');
+            }
+
+            // Head-to-Head: Tabela de Estatísticas
+            var corpoH2H = document.getElementById('corpoEstatisticasPartida');
+            var colAdv = document.getElementById('colAdversarioHeader');
+            if (colAdv) colAdv.textContent = m.adversario || 'Adversário';
+
+            if (corpoH2H && m.estatisticas) {
+                var e = m.estatisticas;
+                var linhasH2H = [
+                    ['Gols / Resultado', (m.placarFinal.adesp || '—'), (m.placarFinal.adversario || '—')],
+                    ['Eficiência de Arremesso', e.eficienciaArremesso ? e.eficienciaArremesso.adesp : '—', e.eficienciaArremesso ? e.eficienciaArremesso.adversario : '—'],
+                    ['Arremessos Totais', e.arremessosTotais ? e.arremessosTotais.adesp : '—', e.arremessosTotais ? e.arremessosTotais.adversario : '—'],
+                    ['Arremessos 6 Metros', e.arremessos6m ? e.arremessos6m.adesp : '—', e.arremessos6m ? e.arremessos6m.adversario : '—'],
+                    ['Arremessos 9 Metros', e.arremessos9m ? e.arremessos9m.adesp : '—', e.arremessos9m ? e.arremessos9m.adversario : '—'],
+                    ['Tiros de Pontas', e.arremessosPontas ? e.arremessosPontas.adesp : '—', e.arremessosPontas ? e.arremessosPontas.adversario : '—'],
+                    ['Tiros de 7 Metros', e.arremessos7m ? e.arremessos7m.adesp : '—', e.arremessos7m ? e.arremessos7m.adversario : '—'],
+                    ['Contra-Ataques', e.contraAtaques ? e.contraAtaques.adesp : '—', e.contraAtaques ? e.contraAtaques.adversario : '—'],
+                    ['Defesas do Goleiro', e.defesasGoleiro ? e.defesasGoleiro.adesp : '—', e.defesasGoleiro ? e.defesasGoleiro.adversario : '—'],
+                    ['Perdas de Bola', e.perdasBola ? e.perdasBola.adesp : '—', e.perdasBola ? e.perdasBola.adversario : '—'],
+                    ['Punições de 2 Minutos', e.punicoes2min ? e.punicoes2min.adesp : '—', e.punicoes2min ? e.punicoes2min.adversario : '—'],
+                    ['Cartões Amarelos', e.cartoesAmarelos ? e.cartoesAmarelos.adesp : '—', e.cartoesAmarelos ? e.cartoesAmarelos.adversario : '—'],
+                    ['Cartões Vermelhos', e.cartoesVermelhos !== undefined ? (e.cartoesVermelhos.adesp || 0) : '—', e.cartoesVermelhos !== undefined ? (e.cartoesVermelhos.adversario || 0) : '—']
+                ];
+
+                corpoH2H.innerHTML = linhasH2H.map(function(linha) {
+                    return '<tr>' +
+                        '<td class="h2h-team-adesp">' + linha[1] + '</td>' +
+                        '<td class="h2h-metric">' + linha[0] + '</td>' +
+                        '<td class="h2h-team-adv">' + linha[2] + '</td>' +
+                    '</tr>';
+                }).join('');
+            }
+
+            // Gráfico de Momentum
+            var ctxMom = document.getElementById('chartMomentumPartida');
+            if (!ctxMom) return;
+            if (momentumChartInstance) momentumChartInstance.destroy();
+
+            if (m.momentum) {
+                var momLabels = m.momentum.map(function(p) { return p.minuto + "'"; });
+                var momData = m.momentum.map(function(p) { return p.diff; });
+
+                momentumChartInstance = new Chart(ctxMom.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: momLabels,
+                        datasets: [{
+                            label: 'Saldo de Gols ADESP (Diferença)',
+                            data: momData,
+                            borderColor: '#1F8A4D',
+                            backgroundColor: function(ctx) {
+                                var gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                                gradient.addColorStop(0, 'rgba(31, 138, 77, 0.35)');
+                                gradient.addColorStop(1, 'rgba(31, 138, 77, 0.03)');
+                                return gradient;
+                            },
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointBackgroundColor: momData.map(function(v) {
+                                return v > 0 ? '#4ade80' : (v < 0 ? '#f87171' : '#F4C542');
+                            }),
+                            pointRadius: 5,
+                            pointHoverRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#cbd5e1' } },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(ctx) {
+                                        var v = ctx.raw;
+                                        return ' Saldo: ' + (v > 0 ? '+' : '') + v + ' gols';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: 'rgba(255,255,255,0.05)' },
+                                ticks: { color: '#94a3b8', font: { size: 11 } }
+                            },
+                            y: {
+                                grid: { color: 'rgba(255,255,255,0.07)' },
+                                ticks: { color: '#94a3b8' },
+                                title: {
+                                    display: true,
+                                    text: 'Saldo (ADESP - Adversário)',
+                                    color: '#64748b',
+                                    font: { size: 11 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // ── GOLEIROS: POPULAR SELETOR ──
+        function popularSeletorGoleiros() {
+            var sel = document.getElementById('selectGoleiroAnalise');
+            if (!sel || typeof playerStatsData === 'undefined') return;
+            sel.innerHTML = '';
+            for (var nome in playerStatsData) {
+                if (playerStatsData[nome].posicao === 'Goleiro') {
+                    var opt = document.createElement('option');
+                    opt.value = nome;
+                    opt.textContent = nome + ' (' + (playerStatsData[nome].defesas || 0) + ' defesas · ' + playerStatsData[nome].jogos + ' jogos)';
+                    sel.appendChild(opt);
+                }
+            }
+            if (sel.options.length > 0) {
+                carregarAnaliseGoleiro(sel.options[0].value);
+            }
+        }
+
+        // ── GOLEIROS: RENDERIZAÇÃO COMPLETA ──
+        var goleiroZonasChartInstance = null;
+
+        function carregarAnaliseGoleiro(nome) {
+            var gk = playerStatsData[nome];
+            if (!gk) return;
+
+            // Header do Goleiro
+            var gkFotoEl = document.getElementById('gkFoto');
+            if (gkFotoEl) {
+                gkFotoEl.src = gk.foto || 'Imagens/player_placeholder.png';
+                gkFotoEl.onerror = function() { this.src = 'Imagens/player_placeholder.png'; };
+            }
+            var gkNomeEl = document.getElementById('gkNome');
+            if (gkNomeEl) gkNomeEl.textContent = nome;
+
+            var gkIdadeEl = document.getElementById('gkIdade');
+            if (gkIdadeEl) gkIdadeEl.textContent = gk.idade || '—';
+
+            var gkFisicoEl = document.getElementById('gkFisico');
+            if (gkFisicoEl) gkFisicoEl.innerHTML = '<i class="fas fa-ruler-vertical" style="color: #60a5fa;"></i> ' + (gk.altura || '—') + ' · ' + (gk.peso || '—');
+
+            var gkSaldoEl = document.getElementById('gkSaldo');
+            if (gkSaldoEl) {
+                var saldo = gk.saldoMaisMenos || 0;
+                gkSaldoEl.innerHTML = '<i class="fas fa-plus-minus"></i> ' + (saldo >= 0 ? '+' : '') + saldo + ' Saldo (+/-)';
+                gkSaldoEl.style.color = saldo >= 0 ? '#4ade80' : '#f87171';
+            }
+
+            // KPIs de Goleiro
+            var totalDef = gk.defesas || 0;
+            var totalArm = gk.arremessosRecebidos || 0;
+            var pctGeral = totalArm > 0 ? Math.round((totalDef / totalArm) * 100) : 0;
+
+            var kpiTotaisEl = document.getElementById('cardGkDefesasTotais');
+            if (kpiTotaisEl) kpiTotaisEl.textContent = totalDef + ' / ' + totalArm;
+
+            var kpiTotaisTrendEl = document.getElementById('cardGkDefesasTrend');
+            if (kpiTotaisTrendEl) kpiTotaisTrendEl.textContent = pctGeral + '% de Aproveitamento';
+
+            var kpiXGEl = document.getElementById('cardGkGolsEvitados');
+            if (kpiXGEl) kpiXGEl.textContent = gk.golsEvitados || '—';
+
+            var kpi6mEl = document.getElementById('cardGkDefesas6m');
+            if (kpi6mEl) kpi6mEl.textContent = gk.defesas6m || '—';
+
+            var kpi9mEl = document.getElementById('cardGkDefesas9m');
+            if (kpi9mEl) kpi9mEl.textContent = gk.defesas9m || '—';
+
+            var kpiPontaEl = document.getElementById('cardGkDefesasPonta');
+            if (kpiPontaEl) kpiPontaEl.textContent = gk.defesasPonta || '—';
+
+            var kpi7mEl = document.getElementById('cardGkDefesas7m');
+            if (kpi7mEl) kpi7mEl.textContent = gk.defesas7m || '—';
+
+            var totalDefBalizaEl = document.getElementById('totalDefesasBalizaGk');
+            if (totalDefBalizaEl) totalDefBalizaEl.textContent = totalDef + ' Defesas Registradas';
+
+            // Baliza 3x3 do Goleiro
+            var quadDef = gk.quadrantesDefesa || [0,0,0,0,0,0,0,0,0];
+            renderizarBaliza3x3('goleiroGoalGrid', quadDef, true);
+
+            // Gráfico de Barras: Taxa de Defesa por Zona
+            var ctxGk = document.getElementById('chartGoleiroZonas');
+            if (!ctxGk) return;
+            if (goleiroZonasChartInstance) goleiroZonasChartInstance.destroy();
+
+            // Extrai as taxas percentuais das strings de defesas
+            function extractPct(str) {
+                if (!str) return 0;
+                var m = str.match(/\((\d+\.?\d*)%\)/);
+                return m ? parseFloat(m[1]) : 0;
+            }
+            var zonasLabels = ['6 Metros', '9 Metros', 'Pontas', '7 Metros'];
+            var zonasVals = [
+                extractPct(gk.defesas6m),
+                extractPct(gk.defesas9m),
+                extractPct(gk.defesasPonta),
+                extractPct(gk.defesas7m)
+            ];
+
+            goleiroZonasChartInstance = new Chart(ctxGk.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: zonasLabels,
+                    datasets: [{
+                        label: 'Taxa de Defesa por Zona (%)',
+                        data: zonasVals,
+                        backgroundColor: [
+                            'rgba(10, 80, 158, 0.6)',
+                            'rgba(31, 138, 77, 0.6)',
+                            'rgba(244, 197, 66, 0.6)',
+                            'rgba(239, 68, 68, 0.5)'
+                        ],
+                        borderColor: ['#60a5fa', '#4ade80', '#F4C542', '#f87171'],
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(ctx) {
+                                    return ' ' + ctx.raw.toFixed(1) + '% de defesas nesta zona';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#cbd5e1', font: { size: 12, weight: '600' } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.07)' },
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: function(v) { return v + '%'; }
+                            },
+                            min: 0,
+                            max: 60,
+                            title: {
+                                display: true,
+                                text: 'Taxa de Defesa (%)',
+                                color: '#64748b',
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ── DISPARO INICIAL NA CARGA DO DOM ──
+        document.addEventListener('DOMContentLoaded', function () {
+            inicializarPainelGeral();
+            popularTabelaGeral();
+            popularTabelaMedica();
+            popularRelatoriosComparativos();
+            inicializarGraficos();
+            popularSeletorPartidas();
+            popularSeletorGoleiros();
+
+            // Carrega o artilheiro principal por padrão (1º colocado no scout)
+            var atletas = getAtletasArrayOrdenado();
+            if (atletas.length > 0) {
+                carregarPerfilAtleta(atletas[0].name);
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /dev-auth.html
+Disallow: /performance.html
+Disallow: /tatica.html
+Disallow: /data/
+
+# Sitemap oficial da ADESP/CDHU Uberlândia
+Sitemap: https://adespcdhu.com/sitemap.xml
+

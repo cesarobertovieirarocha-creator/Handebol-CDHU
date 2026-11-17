@@ -1,0 +1,233 @@
+/* ==========================================================================
+   ADESP / CDHU 3.0 — DESIGN SYSTEM & COMPONENTES REUTILIZÁVEIS
+   Arquivo: css/components.css
+   Objetivo: Garantir que todas as telas compartilhem o mesmo padrão visual
+   ========================================================================== */
+
+:root {
+  /* Paleta Institucional ADESP/CDHU */
+  --cdhu-blue: #0A509E;
+  --cdhu-blue-hover: #083e7a;
+  --cdhu-green: #1F8A4D;
+  --cdhu-green-hover: #176d3c;
+  --cdhu-gold: #F4C542;
+  --cdhu-gold-hover: #d9ad34;
+
+  /* Superfícies & Painéis */
+  --cdhu-bg-dark: #071322;
+  --cdhu-bg-panel: #0d213a;
+  --cdhu-bg-card: #132a48;
+  --cdhu-bg-card-hover: #193860;
+  --cdhu-bg-cream: #F6F3EB;
+
+  /* Bordas e Vidro */
+  --cdhu-border-glass: rgba(255, 255, 255, 0.08);
+  --cdhu-border-gold: rgba(244, 197, 66, 0.35);
+
+  /* Tipografia */
+  --cdhu-font-sans: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  --cdhu-font-serif: 'Fraunces', 'Playfair Display', Georgia, serif;
+  --cdhu-font-display: 'Oswald', sans-serif;
+
+  /* Textos */
+  --cdhu-text-main: #f8fafc;
+  --cdhu-text-muted: #94a3b8;
+  --cdhu-text-gold: #F4C542;
+
+  /* Semântica */
+  --cdhu-success: #22c55e;
+  --cdhu-warning: #f59e0b;
+  --cdhu-danger: #ef4444;
+  --cdhu-info: #38bdf8;
+
+  /* Efeitos */
+  --cdhu-radius-sm: 6px;
+  --cdhu-radius-md: 12px;
+  --cdhu-radius-lg: 20px;
+  --cdhu-radius-pill: 9999px;
+  --cdhu-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.2);
+  --cdhu-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* ── CARDS PADRONIZADOS ── */
+.cdhu-card {
+  background: var(--cdhu-bg-card);
+  border: 1px solid var(--cdhu-border-glass);
+  border-radius: var(--cdhu-radius-md);
+  padding: 20px;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cdhu-card:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: var(--cdhu-shadow-md);
+}
+
+.cdhu-card.highlight-gold {
+  border-color: var(--cdhu-border-gold);
+}
+
+.cdhu-card.highlight-gold::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--cdhu-gold);
+}
+
+/* ── BOTÕES UNIVERSAIS ── */
+.cdhu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--cdhu-radius-pill);
+  font-family: var(--cdhu-font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.cdhu-btn.primary {
+  background: var(--cdhu-blue);
+  color: #ffffff;
+}
+
+.cdhu-btn.primary:hover {
+  background: var(--cdhu-blue-hover);
+  transform: translateY(-2px);
+}
+
+.cdhu-btn.green {
+  background: var(--cdhu-green);
+  color: #ffffff;
+}
+
+.cdhu-btn.green:hover {
+  background: var(--cdhu-green-hover);
+  transform: translateY(-2px);
+}
+
+.cdhu-btn.gold {
+  background: var(--cdhu-gold);
+  color: #071322;
+}
+
+.cdhu-btn.gold:hover {
+  background: var(--cdhu-gold-hover);
+  transform: translateY(-2px);
+}
+
+.cdhu-btn.ghost {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--cdhu-border-glass);
+  color: var(--cdhu-text-main);
+}
+
+.cdhu-btn.ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+/* ── PILLS & TAGS ── */
+.cdhu-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--cdhu-radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  border: 1px solid transparent;
+}
+
+.cdhu-pill.blue {
+  background: rgba(10, 80, 158, 0.18);
+  border-color: rgba(10, 80, 158, 0.4);
+  color: #60a5fa;
+}
+
+.cdhu-pill.green {
+  background: rgba(31, 138, 77, 0.18);
+  border-color: rgba(31, 138, 77, 0.4);
+  color: #4ade80;
+}
+
+.cdhu-pill.gold {
+  background: rgba(244, 197, 66, 0.18);
+  border-color: rgba(244, 197, 66, 0.4);
+  color: #facc15;
+}
+
+.cdhu-pill.red {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+/* ── CAIXAS DE KPI / ESTATÍSTICA RÁPIDA ── */
+.cdhu-stat-box {
+  background: rgba(10, 25, 47, 0.6);
+  border: 1px solid var(--cdhu-border-glass);
+  border-radius: var(--cdhu-radius-sm);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cdhu-stat-box .stat-label {
+  font-size: 0.72rem;
+  color: var(--cdhu-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.cdhu-stat-box .stat-value {
+  font-family: var(--cdhu-font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--cdhu-text-main);
+  line-height: 1;
+}
+
+/* ── ALERTAS & AVISOS ── */
+.cdhu-alert {
+  padding: 14px 18px;
+  border-radius: var(--cdhu-radius-sm);
+  font-size: 0.86rem;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid transparent;
+}
+
+.cdhu-alert.warning {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fde68a;
+}
+
+.cdhu-alert.danger {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.cdhu-alert.info {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #bae6fd;
+}
+

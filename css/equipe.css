@@ -1,0 +1,683 @@
+/* ========================================
+   EQUIPE - SPOTLIGHT CAROUSEL
+======================================== */
+.equipe-section {
+    padding: 80px 0;
+    overflow: hidden;
+}
+
+.equipe-header {
+    text-align: center;
+    padding: 0 20px;
+    margin-bottom: 2.5rem;
+}
+
+.equipe-subtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+}
+
+/* ComissÃ£o TÃ©cnica - tira compacta - Premium Oval Mode */
+.comissao-strip {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.comissao-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 100px;
+    padding: 12px 40px 12px 12px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 255, 255, 1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+}
+
+.comissao-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 60px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-green));
+    z-index: 0;
+    border-radius: 100px 0 0 100px;
+}
+
+.comissao-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 45px rgba(10, 80, 158, 0.15);
+}
+
+.comissao-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+    position: relative;
+    background: white;
+}
+
+.comissao-info {
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+    position: relative;
+}
+
+.comissao-info strong {
+    font-size: 1.3rem;
+    color: var(--primary-black);
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+}
+
+.comissao-info span {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-top: 5px;
+    background: linear-gradient(90deg, #f4c542, #e07b00);
+    padding: 4px 12px;
+    border-radius: 20px;
+    color: #fff;
+    display: inline-block;
+    width: fit-content;
+    box-shadow: 0 3px 10px rgba(244, 197, 66, 0.3);
+}
+
+/* ---- Spotlight Track ---- */
+.spotlight-wrapper {
+    position: relative;
+    width: 100%;
+    padding: 20px 0 40px;
+    overflow: hidden;
+}
+
+.spotlight-fade {
+    position: absolute;
+    top: 0;
+    width: 220px;
+    height: 100%;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.spotlight-fade.left {
+    left: 0;
+    background: linear-gradient(to right, rgba(245, 246, 250, 1) 0%, rgba(245, 246, 250, 0) 100%);
+}
+
+.spotlight-fade.right {
+    right: 0;
+    background: linear-gradient(to left, rgba(245, 246, 250, 1) 0%, rgba(245, 246, 250, 0) 100%);
+}
+
+.spotlight-track {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 20px 250px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.spotlight-track::-webkit-scrollbar {
+    display: none;
+}
+
+/* ---- Card individual ---- */
+.spotlight-card {
+    flex: 0 0 280px;
+    scroll-snap-align: center;
+    border-radius: 18px;
+    overflow: hidden;
+    background: linear-gradient(160deg, #1a2a5e, #0d3b2b);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s, filter 0.4s;
+    filter: brightness(0.6) saturate(0.7);
+    position: relative;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.spotlight-card.active {
+    transform: scale(1.1);
+    filter: brightness(1) saturate(1);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35), 0 0 0 3px var(--primary-green);
+    border-color: var(--primary-green);
+    z-index: 2;
+}
+
+.spotlight-card:hover {
+    filter: brightness(0.85) saturate(0.9);
+}
+
+.spotlight-card.active:hover {
+    filter: brightness(1) saturate(1);
+}
+
+.spotlight-card img {
+    width: 100%;
+    height: 340px;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+}
+
+.spotlight-info {
+    padding: 18px 20px;
+    color: white;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+
+.spotlight-info h3 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.spotlight-pos {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--primary-green);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.spotlight-age {
+    display: block;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.65);
+    margin-top: 2px;
+}
+
+.spotlight-badge {
+    display: inline-block;
+    margin-top: 6px;
+    background: var(--primary-blue);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.spotlight-badge.mvp {
+    background: linear-gradient(90deg, #f4c542, #e07b00);
+    color: #000;
+}
+
+/* ---- BotÃµes de navegaÃ§Ã£o ---- */
+.spotlight-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 4;
+    background: white;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: var(--primary-blue);
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    transition: 0.3s;
+}
+
+.spotlight-btn:hover {
+    background: var(--primary-blue);
+    color: white;
+    border-color: var(--primary-blue);
+}
+
+.spotlight-btn.left {
+    left: 12px;
+}
+
+.spotlight-btn.right {
+    right: 12px;
+}
+
+/* ========================================
+   CARDS JOGADORES â€” ESTILO PREMIUM DARK
+======================================== */
+.team-grid.atletas-grid {
+    padding-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    width: 100%;
+}
+
+/* ---- Card principal ---- */
+.player-card {
+    cursor: pointer;
+    background: #0d1f3c;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    min-height: 190px;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-top: 0;
+    z-index: 1;
+}
+
+/* Barra dourada no topo */
+.player-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #F4C542, #e07b00);
+    z-index: 10;
+}
+
+.player-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(244,197,66,0.3);
+}
+
+/* ---- Lado esquerdo: info ---- */
+.player-info {
+    flex: 1;
+    padding: 20px 16px 16px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 2;
+    min-width: 0;
+}
+
+/* NÃºmero da camisa */
+.player-numero {
+    font-family: 'Oswald', sans-serif;
+    font-size: 3.2rem;
+    font-weight: 900;
+    color: rgba(255,255,255,0.08);
+    line-height: 1;
+    letter-spacing: -2px;
+    position: absolute;
+    top: 10px;
+    left: 14px;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* PosiÃ§Ã£o badge */
+.player-pos-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #F4C542;
+    background: rgba(244,197,66,0.12);
+    border: 1px solid rgba(244,197,66,0.3);
+    border-radius: 4px;
+    padding: 3px 8px;
+    margin-bottom: 6px;
+    width: fit-content;
+}
+
+/* Nome do atleta */
+.player-info h3 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+    margin: 0 0 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Grid 2x2 de stats */
+.player-stats-mini {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.pstat-box {
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 6px 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.pstat-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(255,255,255,0.45);
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pstat-value {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.1;
+    margin-top: 2px;
+}
+
+.pstat-unit {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.4);
+}
+
+/* ---- Lado direito: foto ---- */
+.player-card-photo {
+    width: 130px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.player-card-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.player-card:hover .player-card-photo img {
+    transform: scale(1.05);
+}
+
+/* Gradiente sobre a foto (esquerda) */
+.player-card-photo::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 60px; height: 100%;
+    background: linear-gradient(to right, #0d1f3c, transparent);
+    z-index: 2;
+}
+
+/* NÃºmero ghostado sobre a foto */
+.player-card-photo .photo-num {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: rgba(255,255,255,0.15);
+    line-height: 1;
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* TROFÃ‰US */
+.trofeu-card {
+    flex: 1;
+    background: var(--bg-card);
+    border: var(--glass-border);
+    border-radius: 15px;
+    text-align: center;
+    transition: 0.3s;
+    padding: 20px;
+}
+
+.trofeu-card:hover {
+    transform: translateY(-8px);
+}
+
+/* GRID */
+.conquistas-grid,
+.team-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* ========================================
+   SEPARAÃ‡ÃƒO EQUIPE ðŸ”¥
+======================================== */
+.comissao-grid {
+    justify-content: center;
+}
+
+.divider {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #1F8A4D, transparent);
+    margin: 50px 0;
+}
+
+.atletas-section h3,
+.comissao-section h3 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.atletas-grid {
+    justify-content: center;
+}
+
+.comissao-section {
+    margin-bottom: 30px;
+}
+
+/* ========================================
+   PRINCÃPIOS DO TIME
+======================================== */
+.principios-grid-premium {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+}
+
+.principio-card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: var(--shadow-sm);
+    border: var(--glass-border);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.principio-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+}
+
+.principio-num {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 700;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--primary-blue);
+    min-width: 45px;
+    line-height: 1;
+}
+
+.principio-card p {
+    margin: 0;
+    line-height: 1.3;
+    font-weight: 500;
+    color: var(--text-main);
+    font-size: 1rem;
+}
+
+/* ========================================
+   REGRAS RESPONSIVAS (EQUIPE)
+======================================== */
+@media (max-width: 1100px) {
+    .team-grid.atletas-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .player-card {
+        min-height: 170px;
+    }
+    .player-card-photo {
+        width: 110px;
+    }
+}
+
+@media (max-width: 768px) {
+    #proposito-principios {
+        padding-top: 40px !important;
+        padding-bottom: 40px !important;
+    }
+
+    .principios-grid-premium {
+        grid-template-columns: 1fr !important;
+    }
+
+    .principio-card {
+        grid-column: 1 / -1 !important;
+        max-width: 100% !important;
+    }
+
+    .spotlight-track {
+        padding: 20px 60px;
+    }
+
+    .spotlight-fade {
+        width: 80px;
+    }
+
+    .spotlight-card {
+        flex: 0 0 220px;
+    }
+
+    .spotlight-card img {
+        height: 260px;
+    }
+
+    .conquistas-grid {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .comissao-strip {
+        gap: 20px;
+        flex-direction: column;
+    }
+
+    .comissao-card {
+        width: 100%;
+        max-width: 320px;
+        justify-content: center;
+    }
+
+    .team-grid {
+        flex-direction: column;
+    }
+
+    .team-grid.atletas-grid {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+    }
+
+    /* Cards no mobile: layout horizontal compacto */
+    .player-card {
+        min-height: 130px;
+        border-radius: 12px;
+    }
+
+    .player-info {
+        padding: 14px 12px 12px 16px;
+    }
+
+    .player-numero {
+        font-size: 2.2rem;
+    }
+
+    .player-info h3 {
+        font-size: 1rem;
+    }
+
+    .player-pos-badge {
+        font-size: 0.6rem;
+    }
+
+    .pstat-box {
+        padding: 5px 8px;
+    }
+
+    .pstat-value {
+        font-size: 0.95rem;
+    }
+
+    .player-card-photo {
+        width: 110px;
+    }
+}
+
+@media (max-width: 480px) {
+    .team-grid.atletas-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .player-card-photo {
+        width: 95px;
+    }
+
+    .player-info h3 {
+        font-size: 0.95rem;
+    }
+
+    .player-stats-mini {
+        gap: 4px;
+    }
+}

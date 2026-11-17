@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área Dev & Comissão Técnica — ADESP/CDHU</title>
+    <meta name="description" content="Portal de autenticação e solicitação de acesso para a comissão técnica, departamento médico e administração da ADESP/CDHU.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" href="Imagens/CDHU.png">
+
+    <!-- Tipografia Editorial & Interface -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Folha de Estilos Exclusiva da Autenticação -->
+    <link rel="stylesheet" href="css/dev-auth.css">
+</head>
+
+<body>
+
+    <!-- BARRA SUPERIOR COM VOLTAR AO SITE -->
+    <header class="auth-topbar">
+        <a href="index.html" class="back-to-site">
+            <i class="fas fa-arrow-left"></i>
+            <span>Voltar ao site</span>
+        </a>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL DO CARD COM DIVISÃO DIAGONAL -->
+    <main class="auth-wrapper">
+        <div class="auth-card mode-login" id="authCard">
+            <!-- Conteúdo gerado dinamicamente e reativo via js/dev-auth.js -->
+        </div>
+    </main>
+
+    <!-- RODAPÉ LEGAL & CONFORMIDADE LGPD -->
+    <footer class="auth-footer">
+        <span>Acesso monitorado · dados protegidos pela LGPD · <a href="privacidade.html">Privacidade</a></span>
+    </footer>
+
+    <!-- CONTAINER DE FEEDBACK VISUAL (TOAST) -->
+    <div id="authToast" class="auth-toast"></div>
+
+    <!-- SCRIPTS DE DADOS E ARMAZENAMENTO -->
+    <script src="data/mock-users.js"></script>
+    <script src="js/utils/storage.js"></script>
+
+    <!-- SCRIPT DE GERENCIAMENTO DE AUTENTICAÇÃO -->
+    <script src="js/dev-auth.js"></script>
+
+</body>
+
+</html>
+
